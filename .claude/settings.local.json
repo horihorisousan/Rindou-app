@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --app --tailwind --eslint --src-dir=false --import-alias=\"@/*\" --no-git)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npm run dev)",
+      "Bash(cat:*)",
+      "Bash(npm run test:db:*)",
+      "Bash(npm run check:table:*)",
+      "Bash(curl:*)",
+      "Read(//private/tmp/**)",
+      "Read(//Users/horiosou/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

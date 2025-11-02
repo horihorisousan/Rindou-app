@@ -1,0 +1,32 @@
+{
+  "name": "rindou-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test:db": "tsx scripts/test-db.ts",
+    "check:table": "tsx scripts/check-table-structure.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.76.1",
+    "leaflet": "^1.9.4",
+    "next": "^15.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-leaflet": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.21",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "dotenv": "^17.2.3",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^15.0.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.0.0"
+  }
+}
