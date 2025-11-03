@@ -181,12 +181,6 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
         maxBounds={maxBounds}
         maxBoundsViscosity={1.0}
         minZoom={5}
-        whenReady={(map) => {
-          // マップが完全にレンダリングされたことを確認
-          setTimeout(() => {
-            map.target.invalidateSize();
-          }, 100);
-        }}
       >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

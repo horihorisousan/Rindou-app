@@ -77,10 +77,10 @@ export default function DifficultySelector({
         // 追加の場合は何もしない
       } else {
         // 削除の場合、その車種の難易度を削除
-        const relevantDifficulties =
+        const relevantDifficulties: readonly DifficultyDetail[] =
           vehicle === '4WD' ? FOURWD_DIFFICULTIES : BIKE_DIFFICULTIES;
         const newDifficulties = selectedDifficulties.filter(
-          (d) => !relevantDifficulties.includes(d as any)
+          (d) => !(relevantDifficulties as readonly DifficultyDetail[]).includes(d)
         );
         onDifficultiesChange(newDifficulties);
       }

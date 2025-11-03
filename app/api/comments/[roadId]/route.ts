@@ -5,10 +5,10 @@ import type { CreateCommentInput } from '@/types/comment';
 // GET /api/comments/[roadId] - 特定の林道のコメントを取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { roadId: string } }
+  { params }: { params: Promise<{ roadId: string }> }
 ) {
   try {
-    const { roadId } = params;
+    const { roadId } = await params;
 
     // コメントデータを取得
     const { data: commentsData, error: commentsError } = await supabase
@@ -73,10 +73,10 @@ export async function GET(
 // POST /api/comments/[roadId] - 新しいコメントを投稿
 export async function POST(
   request: NextRequest,
-  { params }: { params: { roadId: string } }
+  { params }: { params: Promise<{ roadId: string }> }
 ) {
   try {
-    const { roadId } = params;
+    const { roadId } = await params;
     const body: CreateCommentInput = await request.json();
 
     // バリデーション

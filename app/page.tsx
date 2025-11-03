@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { Road } from '@/types/road';
@@ -25,7 +25,7 @@ const Map = dynamic(() => import('@/components/Map'), {
   ),
 });
 
-export default function MapPage() {
+function MapPageContent() {
   const [roads, setRoads] = useState<Road[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -340,5 +340,22 @@ export default function MapPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        minHeight: 'calc(100vh - 64px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <p style={{ color: '#666', fontSize: '1.1rem' }}>読み込み中...</p>
+      </div>
+    }>
+      <MapPageContent />
+    </Suspense>
   );
 }
