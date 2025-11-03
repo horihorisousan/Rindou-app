@@ -281,31 +281,26 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
                   }
                 },
                 click: (e) => {
-                  // マーカーがクリックされた時、マップの位置を調整
+                  // マーカーがクリックされた時、ポップアップが画面中心に来るように調整
                   const map = e.target._map;
                   if (map) {
                     // マップのコンテナサイズを取得
                     const mapSize = map.getSize();
 
-                    // マーカーの位置を画面最下部に配置
-                    const targetPoint = map.project(position, map.getZoom());
-                    const offsetY = mapSize.y / 2; // 画面最下部
-                    const targetLatLng = map.unproject(targetPoint.subtract([0, offsetY]), map.getZoom());
+                    // まずズームレベル16でズームイン
+                    const targetZoom = 16;
+
+                    // ズーム後のマーカー位置を計算
+                    const targetPoint = map.project(position, targetZoom);
+
+                    // ポップアップが画面中心に来るように、マーカーを画面の下半分に配置
+                    // ポップアップの高さを考慮して、マーカーを画面の約60%の位置に
+                    const offsetY = mapSize.y * 0.35; // 画面の35%下にオフセット
+                    const targetLatLng = map.unproject(targetPoint.subtract([0, offsetY]), targetZoom);
 
                     // スムーズにアニメーション
-                    map.flyTo(targetLatLng, map.getZoom(), {
-                      duration: 0.5,
-                      easeLinearity: 0.25
-                    });
-                  }
-                },
-                popupclose: (e) => {
-                  // ポップアップが閉じられた時、マーカーを画面中央に戻す
-                  const map = e.target._map;
-                  if (map) {
-                    // マーカーの実際の位置を画面中央に戻す
-                    map.flyTo(position, map.getZoom(), {
-                      duration: 0.5,
+                    map.flyTo(targetLatLng, targetZoom, {
+                      duration: 1.0,
                       easeLinearity: 0.25
                     });
                   }
