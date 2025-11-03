@@ -263,65 +263,6 @@ function MapPageContent() {
         )}
       </div>
 
-      <div style={{
-        marginTop: '1.5rem',
-        padding: '1rem',
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-      }}>
-        <h3 style={{
-          fontSize: '1.2rem',
-          marginBottom: '0.5rem',
-          color: '#2d5016'
-        }}>
-          使い方
-        </h3>
-        <p style={{
-          color: '#666',
-          lineHeight: '1.6',
-          marginBottom: '0.5rem'
-        }}>
-          このマップでは、ユーザーが投稿した林道情報を確認できます。地図上のマーカーをクリックすると詳細情報が表示されます。
-        </p>
-        <div style={{
-          display: 'flex',
-          gap: '1rem',
-          marginTop: '1rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{
-              width: '12px',
-              height: '12px',
-              backgroundColor: '#22c55e',
-              borderRadius: '50%',
-              display: 'inline-block'
-            }}></span>
-            <span style={{ fontSize: '0.9rem', color: '#666' }}>良好</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{
-              width: '12px',
-              height: '12px',
-              backgroundColor: '#f59e0b',
-              borderRadius: '50%',
-              display: 'inline-block'
-            }}></span>
-            <span style={{ fontSize: '0.9rem', color: '#666' }}>注意が必要</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{
-              width: '12px',
-              height: '12px',
-              backgroundColor: '#ef4444',
-              borderRadius: '50%',
-              display: 'inline-block'
-            }}></span>
-            <span style={{ fontSize: '0.9rem', color: '#666' }}>通行不可</span>
-          </div>
-        </div>
-      </div>
-
       {roads.length > 0 && (
         <div style={{
           marginTop: '1.5rem',

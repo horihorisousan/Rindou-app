@@ -4,8 +4,9 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, useMap 
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Road, Coordinate } from '@/types/road';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import RoadPopup from './RoadPopup';
+import SearchBar from './SearchBar';
 import { JAPAN_BOUNDS } from '@/lib/japan-bounds';
 
 interface MapProps {
@@ -70,9 +71,25 @@ function FlyToUserLocation({ userLocation }: { userLocation: [number, number] | 
   return null;
 }
 
+function MapController({ searchLocation }: { searchLocation: [number, number] | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (searchLocation && map) {
+      map.flyTo(searchLocation, 15, {
+        duration: 1.5,
+        easeLinearity: 0.25
+      });
+    }
+  }, [searchLocation, map]);
+
+  return null;
+}
+
 export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, onMapClick, selectedPosition, selectedRoute, userId, onRouteUpdate, routeMode = false, userLocation, userLikedRoadIds = new Set(), selectedRoadId = null }: MapProps) {
   const [isClient, setIsClient] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [searchLocation, setSearchLocation] = useState<[number, number] | null>(null);
   const iconInitialized = useRef(false);
 
   useEffect(() => {
@@ -129,6 +146,11 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
     }
   };
 
+  const handleLocationSelect = useCallback((lat: number, lng: number, name: string) => {
+    console.log('Location selected:', name, lat, lng);
+    setSearchLocation([lat, lng]);
+  }, []);
+
   const createCustomIcon = (color: string) => {
     if (typeof window === 'undefined') return undefined;
 
@@ -172,7 +194,8 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
   ];
 
   return (
-    <div style={{ height: '100%', width: '100%' }}>
+    <div style={{ height: '100%', width: '100%', position: 'relative' }}>
+      <SearchBar onLocationSelect={handleLocationSelect} />
       <MapContainer
         center={center}
         zoom={zoom}
@@ -189,6 +212,7 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
 
       {onMapClick && <MapClickHandler onClick={onMapClick} />}
       <FlyToUserLocation userLocation={userLocation || null} />
+      <MapController searchLocation={searchLocation} />
 
       {selectedPosition && !routeMode && (
         <Marker position={selectedPosition} icon={createCustomIcon('#3b82f6')}>
