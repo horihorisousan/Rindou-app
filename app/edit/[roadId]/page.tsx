@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { Coordinate, VehicleType, DifficultyDetail, Road } from '@/types/road';
 import { useAuth } from '@/lib/auth-context';
+import { supabaseBrowser } from '@/lib/supabase-browser';
 import { isInJapan, JAPAN_CENTER, JAPAN_DEFAULT_ZOOM } from '@/lib/japan-bounds';
 import DifficultySelector from '@/components/DifficultySelector';
 
@@ -185,7 +186,6 @@ export default function EditRoadPage() {
         latitude: routeMode ? route[0].lat : position![0],
         longitude: routeMode ? route[0].lng : position![1],
         route: routeMode && route.length > 1 ? route : null,
-        user_id: user.id,
         // 新しい難易度フィールド
         difficulty_vehicle: selectedVehicles,
         difficulty_detail: selectedDifficulties,
@@ -194,20 +194,21 @@ export default function EditRoadPage() {
 
       console.log('Updating road data:', roadData);
 
-      const response = await fetch(`/api/roads/${roadId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(roadData),
-      });
+      // クライアント側で直接Supabaseに更新（RLSを通過するため認証済みセッションを使用）
+      const { data, error: updateError } = await supabaseBrowser
+        .from('roads')
+        .update(roadData)
+        .eq('id', roadId)
+        .eq('user_id', user.id) // 自分の投稿のみ更新可能
+        .select()
+        .single();
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '更新に失敗しました');
+      if (updateError) {
+        console.error('Update error:', updateError);
+        throw new Error(updateError.message || '更新に失敗しました');
       }
 
-      console.log('Success! Updated road');
+      console.log('Success! Updated road:', data);
 
       // Success - redirect to profile page
       router.push('/profile');
@@ -227,14 +228,20 @@ export default function EditRoadPage() {
 
     try {
       setSubmitting(true);
-      const response = await fetch(`/api/roads/${roadId}?userId=${user?.id}`, {
-        method: 'DELETE',
-      });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '削除に失敗しました');
+      // クライアント側で直接Supabaseから削除（RLSを通過するため認証済みセッションを使用）
+      const { error: deleteError } = await supabaseBrowser
+        .from('roads')
+        .delete()
+        .eq('id', roadId)
+        .eq('user_id', user?.id); // 自分の投稿のみ削除可能
+
+      if (deleteError) {
+        console.error('Delete error:', deleteError);
+        throw new Error(deleteError.message || '削除に失敗しました');
       }
+
+      console.log('Success! Deleted road');
 
       // Success - redirect to profile page
       router.push('/profile');

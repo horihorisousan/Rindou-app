@@ -13,7 +13,8 @@
       "Bash(curl:*)",
       "Read(//private/tmp/**)",
       "Read(//Users/horiosou/**)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "WebFetch(domain:supabase.com)"
     ],
     "deny": [],
     "ask": []
