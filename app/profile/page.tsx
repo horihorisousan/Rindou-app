@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 import type { LikeWithRoad } from '@/types/like';
+import type { Road } from '@/types/road';
 
 /**
  * プロフィールページ
@@ -16,6 +17,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { user, username, loading: authLoading } = useAuth();
   const [likedRoads, setLikedRoads] = useState<LikeWithRoad[]>([]);
+  const [postedRoads, setPostedRoads] = useState<Road[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,6 +31,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       fetchLikedRoads();
+      fetchPostedRoads();
     }
   }, [user]);
 
@@ -125,6 +128,30 @@ export default function ProfilePage() {
   };
 
   /**
+   * ユーザーが投稿した林道を取得する
+   */
+  const fetchPostedRoads = async () => {
+    if (!user) return;
+
+    try {
+      const { data: roadsData, error: roadsError } = await supabaseBrowser
+        .from('roads')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (roadsError) {
+        console.error('Error fetching posted roads:', roadsError);
+        throw new Error(`投稿した林道情報の取得に失敗しました: ${roadsError.message}`);
+      }
+
+      setPostedRoads(roadsData || []);
+    } catch (err) {
+      console.error('Error fetching posted roads:', err);
+    }
+  };
+
+  /**
    * いいねを削除する
    */
   const handleRemoveLike = async (roadId: string) => {
@@ -148,38 +175,6 @@ export default function ProfilePage() {
       console.error('Error removing like:', err);
       const errorMessage = err instanceof Error ? err.message : 'いいねの削除に失敗しました';
       alert(errorMessage);
-    }
-  };
-
-  /**
-   * 林道の状態に応じた色を返す
-   */
-  const getConditionColor = (condition: string) => {
-    switch (condition) {
-      case 'good':
-        return '#4caf50'; // 緑
-      case 'caution':
-        return '#ff9800'; // オレンジ
-      case 'closed':
-        return '#f44336'; // 赤
-      default:
-        return '#9e9e9e'; // グレー
-    }
-  };
-
-  /**
-   * 林道の状態ラベルを返す
-   */
-  const getConditionLabel = (condition: string) => {
-    switch (condition) {
-      case 'good':
-        return '通行可能';
-      case 'caution':
-        return '注意';
-      case 'closed':
-        return '通行止め';
-      default:
-        return '不明';
     }
   };
 
@@ -250,6 +245,168 @@ export default function ProfilePage() {
           }}>
             メール: {user.email}
           </p>
+        </div>
+
+        {/* 投稿した林道セクション */}
+        <div style={{
+          backgroundColor: 'white',
+          padding: '24px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          marginBottom: '24px',
+        }}>
+          <h2 style={{
+            margin: '0 0 16px 0',
+            fontSize: '22px',
+            fontWeight: 'bold',
+            color: '#2d5016',
+          }}>
+            投稿した林道 ({postedRoads.length})
+          </h2>
+
+          {postedRoads.length === 0 ? (
+            <div style={{
+              padding: '48px 24px',
+              textAlign: 'center',
+              color: '#999',
+            }}>
+              <p style={{ margin: '0 0 16px 0', fontSize: '16px' }}>
+                まだ林道を投稿していません
+              </p>
+              <button
+                onClick={() => router.push('/post')}
+                style={{
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: 'white',
+                  backgroundColor: '#2d5016',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3d6920'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2d5016'}
+              >
+                林道を投稿する
+              </button>
+            </div>
+          ) : (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '16px',
+            }}>
+              {postedRoads.map((road) => (
+                <div
+                  key={road.id}
+                  style={{
+                    backgroundColor: '#f9f9f9',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    transition: 'box-shadow 0.2s',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+                >
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '8px',
+                  }}>
+                    <h3 style={{
+                      margin: 0,
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                      color: '#333',
+                    }}>
+                      {road.name}
+                    </h3>
+                  </div>
+
+                  {road.description && (
+                    <p style={{
+                      margin: '8px 0',
+                      fontSize: '14px',
+                      color: '#666',
+                      lineHeight: '1.5',
+                    }}>
+                      {road.description}
+                    </p>
+                  )}
+
+                  <div style={{
+                    marginTop: '12px',
+                    fontSize: '12px',
+                    color: '#999',
+                  }}>
+                    <p style={{ margin: 0 }}>
+                      投稿日: {new Date(road.created_at).toLocaleDateString('ja-JP')}
+                    </p>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    gap: '8px',
+                    marginTop: '12px',
+                  }}>
+                    <Link
+                      href={`/?roadId=${road.id}`}
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        color: 'white',
+                        backgroundColor: '#2d5016',
+                        border: 'none',
+                        borderRadius: '4px',
+                        textDecoration: 'none',
+                        textAlign: 'center',
+                        transition: 'background-color 0.2s',
+                        display: 'block',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3d6920'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2d5016'}
+                    >
+                      マップで見る
+                    </Link>
+                    <Link
+                      href={`/edit/${road.id}`}
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        color: '#2d5016',
+                        backgroundColor: 'white',
+                        border: '1px solid #2d5016',
+                        borderRadius: '4px',
+                        textDecoration: 'none',
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        display: 'block',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#2d5016';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'white';
+                        e.currentTarget.style.color = '#2d5016';
+                      }}
+                    >
+                      編集
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* いいねした林道セクション */}
@@ -343,16 +500,6 @@ export default function ProfilePage() {
                     }}>
                       {like.roads?.name || '不明な林道'}
                     </h3>
-                    <span style={{
-                      padding: '4px 8px',
-                      fontSize: '12px',
-                      color: 'white',
-                      backgroundColor: getConditionColor(like.roads?.condition || ''),
-                      borderRadius: '4px',
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {getConditionLabel(like.roads?.condition || '')}
-                    </span>
                   </div>
 
                   {like.roads?.description && (

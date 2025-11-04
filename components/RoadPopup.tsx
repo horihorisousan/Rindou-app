@@ -9,12 +9,10 @@ import LikeButton from '@/components/LikeButton';
 interface RoadPopupProps {
   road: Road;
   userId: string | null;
-  getMarkerColor: (condition: string) => string;
-  getConditionLabel: (condition: string) => string;
   userHasLiked?: boolean;
 }
 
-export default function RoadPopup({ road, userId, getMarkerColor, getConditionLabel, userHasLiked = false }: RoadPopupProps) {
+export default function RoadPopup({ road, userId, userHasLiked = false }: RoadPopupProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -156,17 +154,6 @@ export default function RoadPopup({ road, userId, getMarkerColor, getConditionLa
       <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 'bold' }}>
         {road.name}
       </h3>
-      <p style={{
-        margin: '4px 0',
-        padding: '4px 8px',
-        backgroundColor: getMarkerColor(road.condition),
-        color: 'white',
-        borderRadius: '4px',
-        display: 'inline-block',
-        fontSize: '14px'
-      }}>
-        {getConditionLabel(road.condition)}
-      </p>
       {road.description && (
         <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#666' }}>
           {road.description}

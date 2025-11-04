@@ -12,7 +12,8 @@
       "Bash(npm run check:table:*)",
       "Bash(curl:*)",
       "Read(//private/tmp/**)",
-      "Read(//Users/horiosou/**)"
+      "Read(//Users/horiosou/**)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []

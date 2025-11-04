@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import type { Coordinate, VehicleType, DifficultyDetail } from '@/types/road';
+import type { Coordinate, VehicleType, DifficultyDetail, Road } from '@/types/road';
 import { useAuth } from '@/lib/auth-context';
-import { supabaseBrowser } from '@/lib/supabase-browser';
 import { isInJapan, JAPAN_CENTER, JAPAN_DEFAULT_ZOOM } from '@/lib/japan-bounds';
 import DifficultySelector from '@/components/DifficultySelector';
 
@@ -27,9 +26,13 @@ const Map = dynamic(() => import('@/components/Map'), {
   ),
 });
 
-export default function PostPage() {
+export default function EditRoadPage() {
   const router = useRouter();
+  const params = useParams();
+  const roadId = params.roadId as string;
   const { user, loading: authLoading } = useAuth();
+
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [position, setPosition] = useState<[number, number] | null>(null);
@@ -49,6 +52,53 @@ export default function PostPage() {
       router.push('/login');
     }
   }, [authLoading, user, router]);
+
+  // 既存の林道データを読み込み
+  useEffect(() => {
+    if (user && roadId) {
+      fetchRoadData();
+    }
+  }, [user, roadId]);
+
+  const fetchRoadData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/roads/${roadId}`);
+
+      if (!response.ok) {
+        throw new Error('林道情報の取得に失敗しました');
+      }
+
+      const road: Road = await response.json();
+
+      // 投稿者チェック
+      if (road.user_id !== user?.id) {
+        setError('この林道は編集できません（投稿者のみ編集可能）');
+        setTimeout(() => router.push('/profile'), 2000);
+        return;
+      }
+
+      // データを state にセット
+      setName(road.name);
+      setDescription(road.description || '');
+      setPosition([road.latitude, road.longitude]);
+
+      if (road.route && road.route.length > 1) {
+        setRoute(road.route);
+        setRouteMode(true);
+      }
+
+      // 難易度情報
+      setSelectedVehicles(road.difficulty_vehicle || []);
+      setSelectedDifficulties(road.difficulty_detail || []);
+      setIsPassable(road.is_passable !== false);
+    } catch (err) {
+      console.error('Error fetching road:', err);
+      setError(err instanceof Error ? err.message : '林道情報の取得に失敗しました');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleMapClick = (lat: number, lng: number) => {
     // 日本国内かチェック
@@ -142,35 +192,62 @@ export default function PostPage() {
         is_passable: isPassable,
       };
 
-      console.log('Submitting road data:', roadData);
+      console.log('Updating road data:', roadData);
 
-      // クライアント側で直接Supabaseに保存
-      const { data, error: insertError } = await supabaseBrowser
-        .from('roads')
-        .insert(roadData)
-        .select()
-        .single();
+      const response = await fetch(`/api/roads/${roadId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(roadData),
+      });
 
-      if (insertError) {
-        console.error('Insert error:', insertError);
-        throw new Error(insertError.message || '投稿に失敗しました');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '更新に失敗しました');
       }
 
-      console.log('Success! Created road:', data);
+      console.log('Success! Updated road');
 
-      // Success - redirect to map page
-      router.push('/');
+      // Success - redirect to profile page
+      router.push('/profile');
     } catch (err) {
-      console.error('Error submitting road:', err);
-      const errorMessage = err instanceof Error ? err.message : '投稿に失敗しました';
+      console.error('Error updating road:', err);
+      const errorMessage = err instanceof Error ? err.message : '更新に失敗しました';
       console.error('Full error:', errorMessage);
       setError(errorMessage);
       setSubmitting(false);
     }
   };
 
-  // 認証チェック中の表示
-  if (authLoading) {
+  const handleDelete = async () => {
+    if (!confirm('本当にこの林道を削除しますか？この操作は取り消せません。')) {
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const response = await fetch(`/api/roads/${roadId}?userId=${user?.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '削除に失敗しました');
+      }
+
+      // Success - redirect to profile page
+      router.push('/profile');
+    } catch (err) {
+      console.error('Error deleting road:', err);
+      const errorMessage = err instanceof Error ? err.message : '削除に失敗しました';
+      alert(errorMessage);
+      setSubmitting(false);
+    }
+  };
+
+  // 認証チェック中またはデータ読み込み中の表示
+  if (authLoading || loading) {
     return (
       <div style={{
         minHeight: 'calc(100vh - 64px)',
@@ -200,7 +277,7 @@ export default function PostPage() {
         marginBottom: '1.5rem',
         color: '#2d5016'
       }}>
-        林道情報を投稿
+        林道情報を編集
       </h2>
 
       {error && (
@@ -338,8 +415,18 @@ export default function PostPage() {
               type="button"
               onClick={() => {
                 setRouteMode(!routeMode);
-                setRoute([]);
-                setPosition(null);
+                if (!routeMode) {
+                  // ルートモードに切り替える場合、現在のpositionをルートの最初の点にする
+                  if (position) {
+                    setRoute([{ lat: position[0], lng: position[1] }]);
+                  }
+                } else {
+                  // ルートモードを解除する場合、ルートの最初の点をpositionにする
+                  if (route.length > 0) {
+                    setPosition([route[0].lat, route[0].lng]);
+                  }
+                  setRoute([]);
+                }
               }}
               style={{
                 padding: '0.5rem 1rem',
@@ -433,31 +520,64 @@ export default function PostPage() {
           </div>
         </div>
 
-        {/* 投稿ボタン */}
-        <button
-          type="submit"
-          disabled={submitting}
-          style={{
-            width: '100%',
-            padding: '1rem',
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            color: 'white',
-            backgroundColor: submitting ? '#999' : '#2d5016',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: submitting ? 'not-allowed' : 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-          onMouseEnter={(e) => {
-            if (!submitting) e.currentTarget.style.backgroundColor = '#3d6920';
-          }}
-          onMouseLeave={(e) => {
-            if (!submitting) e.currentTarget.style.backgroundColor = '#2d5016';
-          }}
-        >
-          {submitting ? '投稿中...' : '投稿する'}
-        </button>
+        {/* ボタン群 */}
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{
+              flex: 1,
+              padding: '1rem',
+              fontSize: '1.1rem',
+              fontWeight: '600',
+              color: 'white',
+              backgroundColor: submitting ? '#999' : '#2d5016',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: submitting ? 'not-allowed' : 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              if (!submitting) e.currentTarget.style.backgroundColor = '#3d6920';
+            }}
+            onMouseLeave={(e) => {
+              if (!submitting) e.currentTarget.style.backgroundColor = '#2d5016';
+            }}
+          >
+            {submitting ? '更新中...' : '更新する'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={submitting}
+            style={{
+              padding: '1rem 2rem',
+              fontSize: '1.1rem',
+              fontWeight: '600',
+              color: '#c33',
+              backgroundColor: 'white',
+              border: '2px solid #c33',
+              borderRadius: '4px',
+              cursor: submitting ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              if (!submitting) {
+                e.currentTarget.style.backgroundColor = '#c33';
+                e.currentTarget.style.color = 'white';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!submitting) {
+                e.currentTarget.style.backgroundColor = 'white';
+                e.currentTarget.style.color = '#c33';
+              }
+            }}
+          >
+            削除
+          </button>
+        </div>
       </form>
     </div>
   );

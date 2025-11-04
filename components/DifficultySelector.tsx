@@ -22,11 +22,9 @@ interface DifficultySelectorProps {
   selectedVehicles: VehicleType[];
   selectedDifficulties: DifficultyDetail[];
   isPassable: boolean;
-  conditionNotes: string;
   onVehiclesChange: (vehicles: VehicleType[]) => void;
   onDifficultiesChange: (difficulties: DifficultyDetail[]) => void;
   onPassableChange: (passable: boolean) => void;
-  onNotesChange: (notes: string) => void;
 }
 
 // 四駆の難易度オプション
@@ -51,11 +49,9 @@ export default function DifficultySelector({
   selectedVehicles,
   selectedDifficulties,
   isPassable,
-  conditionNotes,
   onVehiclesChange,
   onDifficultiesChange,
   onPassableChange,
-  onNotesChange,
 }: DifficultySelectorProps) {
   // 車種カテゴリの選択/解除
   const handleVehicleToggle = (vehicle: VehicleType) => {
@@ -127,7 +123,7 @@ export default function DifficultySelector({
         </label>
         {!isPassable && (
           <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem', marginLeft: '1.75rem' }}>
-            通行止めの理由を下の「詳細メモ」に記入してください
+            通行止めの理由を下の「詳細」欄に記入してください
           </p>
         )}
       </div>
@@ -308,45 +304,6 @@ export default function DifficultySelector({
           )}
         </>
       )}
-
-      {/* 詳細メモ */}
-      <div>
-        <label
-          style={{
-            display: 'block',
-            marginBottom: '0.5rem',
-            fontWeight: '600',
-            color: '#333',
-          }}
-        >
-          詳細メモ {!isPassable && <span style={{ color: '#ef4444' }}>*</span>}
-        </label>
-        <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>
-          {!isPassable
-            ? '通行止めの理由や期間を記入してください'
-            : '路面状況の詳細、注意点、季節による変化などを記入してください'}
-        </p>
-        <textarea
-          value={conditionNotes}
-          onChange={(e) => onNotesChange(e.target.value)}
-          placeholder={
-            !isPassable
-              ? '例: 2024年11月より通行止め。土砂崩れのため。'
-              : '例: 雨天時は泥濘が深くなります。夏季は草木が茂り見通しが悪くなります。'
-          }
-          rows={4}
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            fontSize: '1rem',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            resize: 'vertical',
-            boxSizing: 'border-box',
-            fontFamily: 'inherit',
-          }}
-        />
-      </div>
     </div>
   );
 }

@@ -1,5 +1,14 @@
-// 後方互換性のために既存の型を保持
-export type RoadCondition = 'good' | 'caution' | 'closed';
+// 林道の路面状態（5段階評価）
+export type RoadCondition = 'excellent' | 'good' | 'fair' | 'poor' | 'very_poor';
+
+// 路面状態のラベル
+export const ROAD_CONDITION_LABELS: Record<RoadCondition, string> = {
+  excellent: '非常に良好',
+  good: '良好',
+  fair: '普通',
+  poor: 'やや悪い',
+  very_poor: '非常に悪い',
+};
 
 export interface Coordinate {
   lat: number;

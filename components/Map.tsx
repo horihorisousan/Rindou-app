@@ -120,30 +120,12 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
     };
   }, []);
 
-  const getMarkerColor = (condition: string) => {
-    switch (condition) {
-      case 'good':
-        return '#22c55e'; // green
-      case 'caution':
-        return '#f59e0b'; // orange
-      case 'closed':
-        return '#ef4444'; // red
-      default:
-        return '#3b82f6'; // blue
-    }
+  const getMarkerColor = () => {
+    return '#2d5016'; // 緑（統一色）
   };
 
-  const getConditionLabel = (condition: string) => {
-    switch (condition) {
-      case 'good':
-        return '良好';
-      case 'caution':
-        return '注意が必要';
-      case 'closed':
-        return '通行不可';
-      default:
-        return condition;
-    }
+  const getConditionLabel = () => {
+    return null; // ラベル非表示
   };
 
   const handleLocationSelect = useCallback((lat: number, lng: number, name: string) => {
@@ -253,16 +235,20 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
             {hasRoute && (
               <Polyline
                 positions={road.route!.map(coord => [coord.lat, coord.lng])}
-                color={getMarkerColor(road.condition)}
+                color={getMarkerColor()}
                 weight={4}
                 opacity={0.7}
               >
-                <Popup maxWidth={400}>
+                <Popup
+                  maxWidth={400}
+                  autoPan={true}
+                  autoPanPaddingTopLeft={[10, 80]}
+                  autoPanPaddingBottomRight={[10, 10]}
+                  keepInView={true}
+                >
                   <RoadPopup
                     road={road}
                     userId={userId || null}
-                    getMarkerColor={getMarkerColor}
-                    getConditionLabel={getConditionLabel}
                     userHasLiked={userLikedRoadIds.has(road.id)}
                   />
                 </Popup>
@@ -270,7 +256,7 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
             )}
             <Marker
               position={position}
-              icon={createCustomIcon(getMarkerColor(road.condition))}
+              icon={createCustomIcon(getMarkerColor())}
               eventHandlers={{
                 add: (e) => {
                   // 選択された林道の場合、自動的にポップアップを開く
@@ -307,12 +293,16 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
                 }
               }}
             >
-              <Popup maxWidth={400}>
+              <Popup
+                maxWidth={400}
+                autoPan={true}
+                autoPanPaddingTopLeft={[10, 80]}
+                autoPanPaddingBottomRight={[10, 10]}
+                keepInView={true}
+              >
                 <RoadPopup
                   road={road}
                   userId={userId || null}
-                  getMarkerColor={getMarkerColor}
-                  getConditionLabel={getConditionLabel}
                   userHasLiked={userLikedRoadIds.has(road.id)}
                 />
               </Popup>
