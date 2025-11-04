@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 
 // GET /api/roads/[roadId] - 特定の林道を取得
 export async function GET(
@@ -93,21 +93,21 @@ export async function PUT(
     if (body.route !== undefined) {
       updateData.route = body.route;
     }
-    if (body.passable !== undefined) {
-      updateData.passable = body.passable;
+    if (body.is_passable !== undefined) {
+      updateData.is_passable = body.is_passable;
     }
-    if (body.vehicle_types !== undefined) {
-      updateData.vehicle_types = body.vehicle_types;
+    if (body.difficulty_vehicle !== undefined) {
+      updateData.difficulty_vehicle = body.difficulty_vehicle;
     }
-    if (body.difficulty_details !== undefined) {
-      updateData.difficulty_details = body.difficulty_details;
+    if (body.difficulty_detail !== undefined) {
+      updateData.difficulty_detail = body.difficulty_detail;
     }
     if (body.condition_notes !== undefined) {
       updateData.condition_notes = body.condition_notes;
     }
 
-    // データベースを更新
-    const { data, error } = await supabase
+    // データベースを更新 (RLSをバイパスするためadminクライアントを使用)
+    const { data, error } = await supabaseAdmin
       .from('roads')
       .update(updateData)
       .eq('id', roadId)
@@ -171,8 +171,8 @@ export async function DELETE(
       );
     }
 
-    // 削除
-    const { error } = await supabase
+    // 削除 (RLSをバイパスするためadminクライアントを使用)
+    const { error } = await supabaseAdmin
       .from('roads')
       .delete()
       .eq('id', roadId);
