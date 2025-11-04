@@ -178,6 +178,45 @@ export default function ProfilePage() {
     }
   };
 
+  /**
+   * 投稿した林道を削除する（コメントも自動削除）
+   */
+  const handleDeleteRoad = async (roadId: string, roadName: string) => {
+    if (!user) return;
+
+    // 確認ダイアログ
+    if (!confirm(`「${roadName}」を削除してもよろしいですか？\n\nこの操作は取り消せません。\n投稿に付随するコメントやいいねも全て削除されます。`)) {
+      return;
+    }
+
+    try {
+      // クライアント側で直接Supabaseから削除（RLSを通過するため認証済みセッションを使用）
+      // commentsテーブルはON DELETE CASCADEなので自動的に削除される
+      const { error: deleteError } = await supabaseBrowser
+        .from('roads')
+        .delete()
+        .eq('id', roadId)
+        .eq('user_id', user.id); // 自分の投稿のみ削除可能
+
+      if (deleteError) {
+        console.error('Delete error:', deleteError);
+        throw new Error(deleteError.message || '削除に失敗しました');
+      }
+
+      console.log('Success! Deleted road:', roadId);
+
+      // UIから削除
+      setPostedRoads(postedRoads.filter(road => road.id !== roadId));
+
+      // 成功メッセージ
+      alert('林道を削除しました');
+    } catch (err) {
+      console.error('Error deleting road:', err);
+      const errorMessage = err instanceof Error ? err.message : '削除に失敗しました';
+      alert(errorMessage);
+    }
+  };
+
   // ローディング中
   if (authLoading || loading) {
     return (
@@ -350,13 +389,13 @@ export default function ProfilePage() {
 
                   <div style={{
                     display: 'flex',
+                    flexDirection: 'column',
                     gap: '8px',
                     marginTop: '12px',
                   }}>
                     <Link
                       href={`/?roadId=${road.id}`}
                       style={{
-                        flex: 1,
                         padding: '8px',
                         fontSize: '13px',
                         fontWeight: '500',
@@ -374,34 +413,64 @@ export default function ProfilePage() {
                     >
                       マップで見る
                     </Link>
-                    <Link
-                      href={`/edit/${road.id}`}
-                      style={{
-                        flex: 1,
-                        padding: '8px',
-                        fontSize: '13px',
-                        fontWeight: '500',
-                        color: '#2d5016',
-                        backgroundColor: 'white',
-                        border: '1px solid #2d5016',
-                        borderRadius: '4px',
-                        textDecoration: 'none',
-                        textAlign: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        display: 'block',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#2d5016';
-                        e.currentTarget.style.color = 'white';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'white';
-                        e.currentTarget.style.color = '#2d5016';
-                      }}
-                    >
-                      編集
-                    </Link>
+                    <div style={{
+                      display: 'flex',
+                      gap: '8px',
+                    }}>
+                      <Link
+                        href={`/edit/${road.id}`}
+                        style={{
+                          flex: 1,
+                          padding: '8px',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          color: '#2d5016',
+                          backgroundColor: 'white',
+                          border: '1px solid #2d5016',
+                          borderRadius: '4px',
+                          textDecoration: 'none',
+                          textAlign: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          display: 'block',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#2d5016';
+                          e.currentTarget.style.color = 'white';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'white';
+                          e.currentTarget.style.color = '#2d5016';
+                        }}
+                      >
+                        編集
+                      </Link>
+                      <button
+                        onClick={() => handleDeleteRoad(road.id, road.name)}
+                        style={{
+                          flex: 1,
+                          padding: '8px',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          color: '#c33',
+                          backgroundColor: 'white',
+                          border: '1px solid #c33',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#c33';
+                          e.currentTarget.style.color = 'white';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'white';
+                          e.currentTarget.style.color = '#c33';
+                        }}
+                      >
+                        削除
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
