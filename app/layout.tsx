@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Header from '@/components/Header';
 import { Noto_Sans_JP } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth-context';
@@ -6,12 +6,13 @@ import { AuthProvider } from '@/lib/auth-context';
 export const metadata: Metadata = {
   title: '林道マップ',
   description: '林道情報を共有するマップ型SNS',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 const notoSansJp = Noto_Sans_JP({

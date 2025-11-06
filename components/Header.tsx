@@ -55,11 +55,8 @@ export default function Header() {
         {/* ハンバーガーメニューボタン (モバイルのみ表示) */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="mobile-menu-button"
           style={{
-            display: 'none',
-            '@media (max-width: 768px)': {
-              display: 'block'
-            },
             backgroundColor: 'transparent',
             border: 'none',
             color: 'white',
@@ -67,7 +64,6 @@ export default function Header() {
             cursor: 'pointer',
             padding: '0.5rem'
           }}
-          className="mobile-menu-button"
         >
           {mobileMenuOpen ? '✕' : '☰'}
         </button>
@@ -237,7 +233,6 @@ export default function Header() {
             backgroundColor: '#2d5016',
             boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
             padding: '1rem',
-            display: 'none',
             flexDirection: 'column',
             gap: '0.75rem',
             zIndex: 1000
@@ -363,6 +358,12 @@ export default function Header() {
       )}
 
       <style jsx>{`
+        .mobile-menu-button {
+          display: none;
+        }
+        .mobile-menu {
+          display: flex;
+        }
         @media (max-width: 768px) {
           .desktop-menu {
             display: none !important;
@@ -370,13 +371,13 @@ export default function Header() {
           .mobile-menu-button {
             display: block !important;
           }
-          .mobile-menu {
-            display: flex !important;
-          }
         }
         @media (min-width: 769px) {
           .username-display {
             display: inline !important;
+          }
+          .mobile-menu {
+            display: none !important;
           }
         }
       `}</style>
