@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { Noto_Sans_JP } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth-context';
 import { MenuProvider } from '@/lib/menu-context';
@@ -45,16 +46,23 @@ export default function RootLayout({
         padding: 0,
         backgroundColor: '#f5f5f5',
         overflow: 'hidden',
-        height: '100vh'
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         <AuthProvider>
           <MenuProvider>
             <Header />
             <main style={{
-              height: 'calc(100vh - 64px)',
-              overflow: 'auto'
+              flex: 1,
+              overflow: 'auto',
+              display: 'flex',
+              flexDirection: 'column'
             }}>
-              {children}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                {children}
+              </div>
+              <Footer />
             </main>
           </MenuProvider>
         </AuthProvider>
