@@ -20,6 +20,7 @@ export default function ProfilePage() {
   const [postedRoads, setPostedRoads] = useState<Road[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'posted' | 'liked'>('posted');
 
   useEffect(() => {
     // 認証チェックが完了し、ユーザーがログインしていない場合はログインページへリダイレクト
@@ -286,22 +287,58 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        {/* 投稿した林道セクション */}
+        {/* タブ切り替えセクション */}
         <div style={{
           backgroundColor: 'white',
-          padding: '24px',
           borderRadius: '8px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          marginBottom: '24px',
+          overflow: 'hidden',
         }}>
-          <h2 style={{
-            margin: '0 0 16px 0',
-            fontSize: '22px',
-            fontWeight: 'bold',
-            color: '#2d5016',
+          {/* タブボタン */}
+          <div style={{
+            display: 'flex',
+            borderBottom: '2px solid #e5e7eb',
           }}>
-            投稿した林道 ({postedRoads.length})
-          </h2>
+            <button
+              onClick={() => setActiveTab('posted')}
+              style={{
+                flex: 1,
+                padding: '16px 24px',
+                fontSize: '16px',
+                fontWeight: activeTab === 'posted' ? 'bold' : '500',
+                color: activeTab === 'posted' ? '#2d5016' : '#666',
+                backgroundColor: activeTab === 'posted' ? 'white' : '#f9fafb',
+                border: 'none',
+                borderBottom: activeTab === 'posted' ? '3px solid #2d5016' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              投稿した林道 ({postedRoads.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('liked')}
+              style={{
+                flex: 1,
+                padding: '16px 24px',
+                fontSize: '16px',
+                fontWeight: activeTab === 'liked' ? 'bold' : '500',
+                color: activeTab === 'liked' ? '#2d5016' : '#666',
+                backgroundColor: activeTab === 'liked' ? 'white' : '#f9fafb',
+                border: 'none',
+                borderBottom: activeTab === 'liked' ? '3px solid #2d5016' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              いいねした林道 ({likedRoads.length})
+            </button>
+          </div>
+
+          {/* タブコンテンツ */}
+          <div style={{ padding: '24px' }}>
+            {activeTab === 'posted' && (
+              <div>
 
           {postedRoads.length === 0 ? (
             <div style={{
@@ -476,24 +513,11 @@ export default function ProfilePage() {
               ))}
             </div>
           )}
-        </div>
+              </div>
+            )}
 
-        {/* いいねした林道セクション */}
-        <div style={{
-          backgroundColor: 'white',
-          padding: '24px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        }}>
-          <h2 style={{
-            margin: '0 0 16px 0',
-            fontSize: '22px',
-            fontWeight: 'bold',
-            color: '#2d5016',
-          }}>
-            いいねした林道 ({likedRoads.length})
-          </h2>
-
+            {activeTab === 'liked' && (
+              <div>
           {error && (
             <div style={{
               padding: '12px',
@@ -654,6 +678,9 @@ export default function ProfilePage() {
               ))}
             </div>
           )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ホームに戻るボタン */}
