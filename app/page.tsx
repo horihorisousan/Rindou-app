@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import type { Road } from '@/types/road';
 import { useAuth } from '@/lib/auth-context';
 import { supabaseBrowser } from '@/lib/supabase-browser';
-import { JAPAN_CENTER, JAPAN_DEFAULT_ZOOM, IBARAKI_ROUTE_218_CENTER, USER_LOCATION_ZOOM, isInJapan } from '@/lib/japan-bounds';
+import { JAPAN_CENTER, JAPAN_DEFAULT_ZOOM, USER_LOCATION_ZOOM, isInJapan } from '@/lib/japan-bounds';
 
 // Dynamically import Map component to avoid SSR issues with Leaflet
 const Map = dynamic(() => import('@/components/Map'), {
@@ -99,10 +99,8 @@ function MapPageContent() {
               setMapCenter([lat, lng]);
               setMapZoom(USER_LOCATION_ZOOM);
             } else {
-              console.log('User is outside Japan, using Ibaraki Route 218 as default');
-              setUserLocation(IBARAKI_ROUTE_218_CENTER);
-              setMapCenter(IBARAKI_ROUTE_218_CENTER);
-              setMapZoom(USER_LOCATION_ZOOM);
+              console.log('User is outside Japan, staying at default Japan center');
+              // 日本国外の場合は日本の中心に留まる
             }
           },
           (error) => {
@@ -120,12 +118,9 @@ function MapPageContent() {
               default:
                 console.log('位置情報の取得に失敗しました:', error.message);
             }
-            console.log('デフォルト位置（茨城県道218号線周辺）を使用します');
+            console.log('デフォルトの日本中心位置を使用します');
 
-            // デフォルト位置を設定
-            setUserLocation(IBARAKI_ROUTE_218_CENTER);
-            setMapCenter(IBARAKI_ROUTE_218_CENTER);
-            setMapZoom(USER_LOCATION_ZOOM);
+            // 位置情報取得に失敗した場合は日本の中心に留まる（何もしない）
           },
           {
             enableHighAccuracy: false, // localhostでは低精度モードで高速化
@@ -134,10 +129,8 @@ function MapPageContent() {
           }
         );
       } else {
-        console.log('Geolocation not supported, using Ibaraki Route 218 as default');
-        setUserLocation(IBARAKI_ROUTE_218_CENTER);
-        setMapCenter(IBARAKI_ROUTE_218_CENTER);
-        setMapZoom(USER_LOCATION_ZOOM);
+        console.log('Geolocation not supported, staying at default Japan center');
+        // Geolocationがサポートされていない場合は日本の中心に留まる（何もしない）
       }
     }
   }, [user, searchParams]);
