@@ -218,9 +218,9 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
           {selectedRoute.length > 1 && (
             <Polyline
               positions={selectedRoute.map(coord => [coord.lat, coord.lng])}
-              color="#3b82f6"
-              weight={4}
-              opacity={0.7}
+              color="#ef4444"
+              weight={5}
+              opacity={0.8}
             />
           )}
         </>
@@ -235,9 +235,9 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
             {hasRoute && (
               <Polyline
                 positions={road.route!.map(coord => [coord.lat, coord.lng])}
-                color={getMarkerColor()}
-                weight={4}
-                opacity={0.7}
+                color="#ef4444"
+                weight={5}
+                opacity={0.8}
               >
                 <Popup
                   maxWidth={400}

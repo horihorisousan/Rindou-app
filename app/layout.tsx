@@ -4,7 +4,7 @@ import { Noto_Sans_JP } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth-context';
 
 export const metadata: Metadata = {
-  title: '林道シェア',
+  title: '林道マップ',
   description: '林道情報を共有するマップ型SNS',
 };
 
@@ -24,11 +24,16 @@ export default function RootLayout({
       <body className={notoSansJp.className} style={{
         margin: 0,
         padding: 0,
-        backgroundColor: '#f5f5f5'
+        backgroundColor: '#f5f5f5',
+        overflow: 'hidden',
+        height: '100vh'
       }}>
         <AuthProvider>
           <Header />
-          <main>
+          <main style={{
+            height: 'calc(100vh - 64px)',
+            overflow: 'auto'
+          }}>
             {children}
           </main>
         </AuthProvider>

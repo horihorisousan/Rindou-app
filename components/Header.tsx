@@ -32,7 +32,7 @@ export default function Header() {
           fontSize: '1.5rem',
           fontWeight: 'bold'
         }}>
-          林道シェア
+          林道マップ
         </h1>
         <div style={{
           display: 'flex',

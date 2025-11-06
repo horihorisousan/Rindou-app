@@ -206,27 +206,24 @@ function MapPageContent() {
 
   return (
     <div style={{
-      maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '2rem'
+      width: '100%',
+      height: 'calc(100vh - 64px)', // ヘッダーの高さを引いた全画面
+      position: 'relative'
     }}>
-      <h2 style={{
-        fontSize: '2rem',
-        fontWeight: 'bold',
-        marginBottom: '1.5rem',
-        color: '#2d5016'
-      }}>
-        林道マップ
-      </h2>
-
       {error && (
         <div style={{
+          position: 'absolute',
+          top: '1rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
           padding: '1rem',
-          marginBottom: '1rem',
           backgroundColor: '#fee',
           border: '1px solid #fcc',
           borderRadius: '4px',
-          color: '#c33'
+          color: '#c33',
+          maxWidth: '500px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
         }}>
           {error}
         </div>
@@ -234,7 +231,7 @@ function MapPageContent() {
 
       <div style={{
         width: '100%',
-        height: '600px',
+        height: '100%',
         position: 'relative'
       }}>
         {loading ? (
@@ -242,7 +239,6 @@ function MapPageContent() {
             width: '100%',
             height: '100%',
             backgroundColor: '#f5f5f5',
-            borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -262,24 +258,6 @@ function MapPageContent() {
           />
         )}
       </div>
-
-      {roads.length > 0 && (
-        <div style={{
-          marginTop: '1.5rem',
-          padding: '1rem',
-          backgroundColor: 'white',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-        }}>
-          <h3 style={{
-            fontSize: '1.2rem',
-            marginBottom: '0.5rem',
-            color: '#2d5016'
-          }}>
-            投稿された林道（{roads.length}件）
-          </h3>
-        </div>
-      )}
     </div>
   );
 }
