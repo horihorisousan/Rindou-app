@@ -3,22 +3,30 @@
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Header() {
   const { user, username, signOut, loading } = useAuth();
   const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
+    setMobileMenuOpen(false);
     router.push('/login');
+  };
+
+  const handleLinkClick = () => {
+    setMobileMenuOpen(false);
   };
 
   return (
     <header style={{
       backgroundColor: '#2d5016',
       color: 'white',
-      padding: '1rem 2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      padding: '0.75rem 1rem',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      position: 'relative'
     }}>
       <nav style={{
         display: 'flex',
@@ -27,31 +35,65 @@ export default function Header() {
         maxWidth: '1200px',
         margin: '0 auto'
       }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: '1.5rem',
-          fontWeight: 'bold'
-        }}>
-          林道マップ
-        </h1>
-        <div style={{
-          display: 'flex',
-          gap: '1rem',
-          alignItems: 'center'
-        }}>
+        <Link
+          href="/"
+          onClick={handleLinkClick}
+          style={{
+            textDecoration: 'none',
+            color: 'white'
+          }}
+        >
+          <h1 style={{
+            margin: 0,
+            fontSize: 'clamp(1.1rem, 4vw, 1.5rem)',
+            fontWeight: 'bold'
+          }}>
+            林道マップ
+          </h1>
+        </Link>
+
+        {/* ハンバーガーメニューボタン (モバイルのみ表示) */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          style={{
+            display: 'none',
+            '@media (max-width: 768px)': {
+              display: 'block'
+            },
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: 'white',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+            padding: '0.5rem'
+          }}
+          className="mobile-menu-button"
+        >
+          {mobileMenuOpen ? '✕' : '☰'}
+        </button>
+
+        {/* デスクトップメニュー */}
+        <div
+          className="desktop-menu"
+          style={{
+            display: 'flex',
+            gap: '0.5rem',
+            alignItems: 'center'
+          }}
+        >
           <Link
             href="/"
             style={{
               color: 'white',
               textDecoration: 'none',
-              fontSize: '1rem',
+              fontSize: '0.9rem',
               fontWeight: '500',
-              padding: '0.5rem 1rem',
+              padding: '0.4rem 0.8rem',
               borderRadius: '4px',
               transition: 'background-color 0.2s',
               backgroundColor: 'transparent',
               textAlign: 'center',
-              minWidth: '80px'
+              whiteSpace: 'nowrap'
             }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -65,14 +107,14 @@ export default function Header() {
                 style={{
                   color: 'white',
                   textDecoration: 'none',
-                  fontSize: '1rem',
+                  fontSize: '0.9rem',
                   fontWeight: '500',
-                  padding: '0.5rem 1rem',
+                  padding: '0.4rem 0.8rem',
                   borderRadius: '4px',
                   transition: 'background-color 0.2s',
                   backgroundColor: 'transparent',
                   textAlign: 'center',
-                  minWidth: '80px'
+                  whiteSpace: 'nowrap'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -84,14 +126,14 @@ export default function Header() {
                 style={{
                   color: 'white',
                   textDecoration: 'none',
-                  fontSize: '1rem',
+                  fontSize: '0.9rem',
                   fontWeight: '500',
-                  padding: '0.5rem 1rem',
+                  padding: '0.4rem 0.8rem',
                   borderRadius: '4px',
                   transition: 'background-color 0.2s',
                   backgroundColor: 'transparent',
                   textAlign: 'center',
-                  minWidth: '80px'
+                  whiteSpace: 'nowrap'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -102,8 +144,8 @@ export default function Header() {
           )}
           {!loading && (
             user ? (
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.9rem', opacity: 0.9 }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.8rem', opacity: 0.9, display: 'none' }} className="username-display">
                   {username || user.email}
                 </span>
                 <button
@@ -112,14 +154,14 @@ export default function Header() {
                     backgroundColor: 'transparent',
                     color: 'white',
                     border: '1px solid white',
-                    padding: '0.5rem 1rem',
+                    padding: '0.4rem 0.8rem',
                     borderRadius: '4px',
                     cursor: 'pointer',
-                    fontSize: '1rem',
+                    fontSize: '0.9rem',
                     fontWeight: '500',
                     transition: 'background-color 0.2s',
                     textAlign: 'center',
-                    minWidth: '100px'
+                    whiteSpace: 'nowrap'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -128,21 +170,21 @@ export default function Header() {
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <Link
                   href="/login"
                   style={{
                     backgroundColor: 'transparent',
                     color: 'white',
                     textDecoration: 'none',
-                    fontSize: '1rem',
+                    fontSize: '0.9rem',
                     fontWeight: '500',
-                    padding: '0.5rem 1rem',
+                    padding: '0.4rem 0.8rem',
                     borderRadius: '4px',
                     border: '1px solid white',
                     transition: 'background-color 0.2s',
                     textAlign: 'center',
-                    minWidth: '100px',
+                    whiteSpace: 'nowrap',
                     display: 'inline-block'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
@@ -156,14 +198,14 @@ export default function Header() {
                     backgroundColor: '#4CAF50',
                     color: 'white',
                     textDecoration: 'none',
-                    fontSize: '1rem',
+                    fontSize: '0.9rem',
                     fontWeight: '500',
-                    padding: '0.5rem 1rem',
+                    padding: '0.4rem 0.8rem',
                     borderRadius: '4px',
                     border: '1px solid #4CAF50',
                     transition: 'background-color 0.2s',
                     textAlign: 'center',
-                    minWidth: '100px',
+                    whiteSpace: 'nowrap',
                     display: 'inline-block'
                   }}
                   onMouseEnter={(e) => {
@@ -182,6 +224,162 @@ export default function Header() {
           )}
         </div>
       </nav>
+
+      {/* モバイルメニュー (折りたたみ式) */}
+      {mobileMenuOpen && (
+        <div
+          className="mobile-menu"
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            backgroundColor: '#2d5016',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            padding: '1rem',
+            display: 'none',
+            flexDirection: 'column',
+            gap: '0.75rem',
+            zIndex: 1000
+          }}
+        >
+          <Link
+            href="/"
+            onClick={handleLinkClick}
+            style={{
+              color: 'white',
+              textDecoration: 'none',
+              fontSize: '1rem',
+              fontWeight: '500',
+              padding: '0.75rem',
+              borderRadius: '4px',
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              textAlign: 'center'
+            }}
+          >
+            マップ
+          </Link>
+          {user && (
+            <>
+              <Link
+                href="/post"
+                onClick={handleLinkClick}
+                style={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  padding: '0.75rem',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  textAlign: 'center'
+                }}
+              >
+                投稿
+              </Link>
+              <Link
+                href="/profile"
+                onClick={handleLinkClick}
+                style={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  padding: '0.75rem',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  textAlign: 'center'
+                }}
+              >
+                プロフィール
+              </Link>
+              <div style={{
+                padding: '0.5rem 0.75rem',
+                fontSize: '0.9rem',
+                color: 'rgba(255,255,255,0.8)',
+                textAlign: 'center'
+              }}>
+                {username || user.email}
+              </div>
+              <button
+                onClick={handleSignOut}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'white',
+                  border: '1px solid white',
+                  padding: '0.75rem',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  textAlign: 'center'
+                }}
+              >
+                ログアウト
+              </button>
+            </>
+          )}
+          {!loading && !user && (
+            <>
+              <Link
+                href="/login"
+                onClick={handleLinkClick}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'white',
+                  textDecoration: 'none',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  padding: '0.75rem',
+                  borderRadius: '4px',
+                  border: '1px solid white',
+                  textAlign: 'center',
+                  display: 'block'
+                }}
+              >
+                ログイン
+              </Link>
+              <Link
+                href="/signup"
+                onClick={handleLinkClick}
+                style={{
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  textDecoration: 'none',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  padding: '0.75rem',
+                  borderRadius: '4px',
+                  border: '1px solid #4CAF50',
+                  textAlign: 'center',
+                  display: 'block'
+                }}
+              >
+                新規登録
+              </Link>
+            </>
+          )}
+        </div>
+      )}
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .desktop-menu {
+            display: none !important;
+          }
+          .mobile-menu-button {
+            display: block !important;
+          }
+          .mobile-menu {
+            display: flex !important;
+          }
+        }
+        @media (min-width: 769px) {
+          .username-display {
+            display: inline !important;
+          }
+        }
+      `}</style>
     </header>
   );
 }

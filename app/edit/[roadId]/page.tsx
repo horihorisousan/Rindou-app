@@ -276,10 +276,10 @@ export default function EditRoadPage() {
     <div style={{
       maxWidth: '800px',
       margin: '0 auto',
-      padding: '2rem'
+      padding: 'clamp(1rem, 3vw, 2rem)'
     }}>
       <h2 style={{
-        fontSize: '2rem',
+        fontSize: 'clamp(1.5rem, 5vw, 2rem)',
         fontWeight: 'bold',
         marginBottom: '1.5rem',
         color: '#2d5016'

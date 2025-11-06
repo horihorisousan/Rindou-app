@@ -248,7 +248,7 @@ export default function ProfilePage() {
     <div style={{
       minHeight: '100vh',
       backgroundColor: '#f5f5f5',
-      padding: '24px',
+      padding: 'clamp(1rem, 3vw, 1.5rem)',
     }}>
       <div style={{
         maxWidth: '1200px',
