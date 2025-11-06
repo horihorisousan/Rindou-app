@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useMenu } from '@/lib/menu-context';
 
 interface SearchResult {
   place_id: number;
@@ -40,6 +41,7 @@ const parseCoordinates = (input: string): { lat: number; lng: number } | null =>
 };
 
 export default function SearchBar({ onLocationSelect }: SearchBarProps) {
+  const { mobileMenuOpen } = useMenu();
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -134,6 +136,11 @@ export default function SearchBar({ onLocationSelect }: SearchBarProps) {
     setShowResults(false);
     setResults([]);
   };
+
+  // モバイルメニューが開いている時は非表示
+  if (mobileMenuOpen) {
+    return null;
+  }
 
   return (
     <div

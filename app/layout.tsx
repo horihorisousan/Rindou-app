@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import Header from '@/components/Header';
 import { Noto_Sans_JP } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth-context';
+import { MenuProvider } from '@/lib/menu-context';
 
 export const metadata: Metadata = {
   title: '林道マップ',
@@ -36,13 +37,15 @@ export default function RootLayout({
         height: '100vh'
       }}>
         <AuthProvider>
-          <Header />
-          <main style={{
-            height: 'calc(100vh - 64px)',
-            overflow: 'auto'
-          }}>
-            {children}
-          </main>
+          <MenuProvider>
+            <Header />
+            <main style={{
+              height: 'calc(100vh - 64px)',
+              overflow: 'auto'
+            }}>
+              {children}
+            </main>
+          </MenuProvider>
         </AuthProvider>
       </body>
     </html>

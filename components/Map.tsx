@@ -1,6 +1,6 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, useMap, ZoomControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Road, Coordinate } from '@/types/road';
@@ -8,6 +8,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import RoadPopup from './RoadPopup';
 import SearchBar from './SearchBar';
 import { JAPAN_BOUNDS } from '@/lib/japan-bounds';
+import { useMenu } from '@/lib/menu-context';
 
 interface MapProps {
   roads: Road[];
@@ -87,6 +88,7 @@ function MapController({ searchLocation }: { searchLocation: [number, number] | 
 }
 
 export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, onMapClick, selectedPosition, selectedRoute, userId, onRouteUpdate, routeMode = false, userLocation, userLikedRoadIds = new Set(), selectedRoadId = null }: MapProps) {
+  const { mobileMenuOpen } = useMenu();
   const [isClient, setIsClient] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [searchLocation, setSearchLocation] = useState<[number, number] | null>(null);
@@ -186,7 +188,9 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
         maxBounds={maxBounds}
         maxBoundsViscosity={1.0}
         minZoom={5}
+        zoomControl={false}
       >
+      {!mobileMenuOpen && <ZoomControl position="topright" />}
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

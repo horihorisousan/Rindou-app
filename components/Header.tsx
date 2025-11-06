@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMenu } from '@/lib/menu-context';
 
 export default function Header() {
   const { user, username, signOut, loading } = useAuth();
   const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { mobileMenuOpen, setMobileMenuOpen } = useMenu();
 
   const handleSignOut = async () => {
     await signOut();
