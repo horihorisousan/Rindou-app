@@ -7,6 +7,7 @@ import type { Road } from '@/types/road';
 import { useAuth } from '@/lib/auth-context';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 import { JAPAN_CENTER, JAPAN_DEFAULT_ZOOM, USER_LOCATION_ZOOM, isInJapan } from '@/lib/japan-bounds';
+import AdBanner from '@/components/AdBanner';
 
 // Dynamically import Map component to avoid SSR issues with Leaflet
 const Map = dynamic(() => import('@/components/Map'), {
@@ -201,7 +202,9 @@ function MapPageContent() {
     <div style={{
       width: '100%',
       height: 'calc(100vh - 64px)', // ヘッダーの高さを引いた全画面
-      position: 'relative'
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
       {error && (
         <div style={{
@@ -224,8 +227,9 @@ function MapPageContent() {
 
       <div style={{
         width: '100%',
-        height: '100%',
-        position: 'relative'
+        flex: 1,
+        position: 'relative',
+        minHeight: 0
       }}>
         {loading ? (
           <div style={{
@@ -250,6 +254,18 @@ function MapPageContent() {
             selectedRoadId={selectedRoadId}
           />
         )}
+      </div>
+
+      {/* 広告バナー */}
+      <div style={{
+        width: '100%',
+        backgroundColor: '#fff',
+        borderTop: '1px solid #ddd'
+      }}>
+        <AdBanner
+          dataAdSlot="1234567890"
+          style={{ minHeight: '90px', maxHeight: '120px' }}
+        />
       </div>
     </div>
   );

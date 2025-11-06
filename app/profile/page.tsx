@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 import type { LikeWithRoad } from '@/types/like';
 import type { Road } from '@/types/road';
+import AdBanner from '@/components/AdBanner';
 
 /**
  * プロフィールページ
@@ -681,6 +682,20 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* 広告バナー */}
+        <div style={{
+          marginTop: '24px',
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          overflow: 'hidden',
+        }}>
+          <AdBanner
+            dataAdSlot="1234567891"
+            style={{ minHeight: '90px' }}
+          />
         </div>
 
         {/* ホームに戻るボタン */}

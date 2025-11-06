@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth-context';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 import { isInJapan, JAPAN_CENTER, JAPAN_DEFAULT_ZOOM } from '@/lib/japan-bounds';
 import DifficultySelector from '@/components/DifficultySelector';
+import AdBanner from '@/components/AdBanner';
 
 // Dynamically import Map component to avoid SSR issues with Leaflet
 const Map = dynamic(() => import('@/components/Map'), {
@@ -459,6 +460,20 @@ export default function PostPage() {
           {submitting ? '投稿中...' : '投稿する'}
         </button>
       </form>
+
+      {/* 広告バナー */}
+      <div style={{
+        marginTop: '24px',
+        backgroundColor: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        overflow: 'hidden',
+      }}>
+        <AdBanner
+          dataAdSlot="1234567892"
+          style={{ minHeight: '90px' }}
+        />
+      </div>
     </div>
   );
 }
