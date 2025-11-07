@@ -201,10 +201,10 @@ function MapPageContent() {
   return (
     <div style={{
       width: '100%',
-      height: '100%',
+      height: 'calc(100vh - 64px)', // ヘッダーの高さを引いた全画面
+      position: 'relative',
       display: 'flex',
-      flexDirection: 'column',
-      position: 'relative'
+      flexDirection: 'column'
     }}>
       {error && (
         <div style={{
@@ -228,8 +228,8 @@ function MapPageContent() {
       <div style={{
         width: '100%',
         flex: 1,
-        minHeight: 0,
-        position: 'relative'
+        position: 'relative',
+        minHeight: 0
       }}>
         {loading ? (
           <div style={{
@@ -260,13 +260,11 @@ function MapPageContent() {
       <div style={{
         width: '100%',
         backgroundColor: '#fff',
-        borderTop: '1px solid #ddd',
-        padding: '4px 0',
-        flexShrink: 0
+        borderTop: '1px solid #ddd'
       }}>
         <AdBanner
           dataAdSlot="1234567890"
-          style={{ height: '80px' }}
+          style={{ minHeight: '50px', maxHeight: '90px' }}
         />
       </div>
     </div>
