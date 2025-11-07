@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Noto_Sans_JP } from 'next/font/google';
@@ -33,11 +32,10 @@ export default function RootLayout({
     <html lang="ja">
       <head>
         {process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
-          <Script
+          <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID}`}
             crossOrigin="anonymous"
-            strategy="afterInteractive"
           />
         )}
       </head>
