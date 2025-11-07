@@ -202,9 +202,13 @@ function MapPageContent() {
     <div style={{
       width: '100%',
       height: 'calc(100vh - 64px)', // ヘッダーの高さを引いた全画面
-      position: 'relative',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      overflow: 'hidden'
     }}>
       {error && (
         <div style={{
@@ -260,11 +264,13 @@ function MapPageContent() {
       <div style={{
         width: '100%',
         backgroundColor: '#fff',
-        borderTop: '1px solid #ddd'
+        borderTop: '1px solid #ddd',
+        padding: 0,
+        margin: 0
       }}>
         <AdBanner
           dataAdSlot="1234567890"
-          style={{ minHeight: '90px', maxHeight: '120px' }}
+          style={{ minHeight: '50px', maxHeight: '90px', display: 'block', margin: 0, padding: 0 }}
         />
       </div>
     </div>
