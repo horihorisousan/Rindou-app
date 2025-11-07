@@ -14,7 +14,16 @@
       "Read(//private/tmp/**)",
       "Read(//Users/horiosou/**)",
       "Bash(rm:*)",
-      "WebFetch(domain:supabase.com)"
+      "WebFetch(domain:supabase.com)",
+      "WebFetch(domain:rindou-73755i688-horihorisousans-projects.vercel.app)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(git add:*)",
+      "WebFetch(domain:rindou-kv36naukc-horihorisousans-projects.vercel.app)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []
