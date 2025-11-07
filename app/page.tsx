@@ -256,22 +256,8 @@ function MapPageContent() {
         )}
       </div>
 
-      {/* 広告バナー */}
-      <div style={{
-        width: '100%',
-        height: '90px',
-        minHeight: '90px',
-        maxHeight: '90px',
-        backgroundColor: '#fff',
-        borderTop: '1px solid #ddd',
-        flexShrink: 0,
-        overflow: 'hidden'
-      }}>
-        <AdBanner
-          dataAdSlot="1234567890"
-          style={{ height: '90px' }}
-        />
-      </div>
+      {/* 広告バナー - Google AdSense審査完了後に有効化 */}
+      {/* 現在はマップ表示を優先して無効化中 */}
     </div>
   );
 }
