@@ -70,6 +70,7 @@ export default function RootLayout({
     <html lang="ja">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+        <meta name="google-site-verification" content="sW3APj4yZTv4lvC5C3_p1NeJltoJXSMrtpFsRjLe71E" />
         {process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
           <script
             async
