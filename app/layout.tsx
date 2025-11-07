@@ -6,8 +6,45 @@ import { AuthProvider } from '@/lib/auth-context';
 import { MenuProvider } from '@/lib/menu-context';
 
 export const metadata: Metadata = {
-  title: '林道マップ',
-  description: '林道情報を共有するマップ型SNS',
+  title: {
+    default: '林道マップ - 全国の林道情報を共有するマップ型SNS',
+    template: '%s | 林道マップ'
+  },
+  description: '日本全国の林道情報を地図上で共有できるマップ型SNS。オフロードバイク、四輪駆動車、アドベンチャー好きのための林道コミュニティ。',
+  keywords: ['林道', '林道マップ', 'オフロード', 'バイク', '四駆', 'アドベンチャー', '日本', '地図', 'SNS'],
+  authors: [{ name: '林道マップ' }],
+  creator: '林道マップ',
+  publisher: '林道マップ',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://rindou-kv36naukc-horihorisousans-projects.vercel.app'),
+  openGraph: {
+    title: '林道マップ - 全国の林道情報を共有するマップ型SNS',
+    description: '日本全国の林道情報を地図上で共有できるマップ型SNS。オフロードバイク、四輪駆動車、アドベンチャー好きのための林道コミュニティ。',
+    url: 'https://rindou-kv36naukc-horihorisousans-projects.vercel.app',
+    siteName: '林道マップ',
+    locale: 'ja_JP',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '林道マップ - 全国の林道情報を共有するマップ型SNS',
+    description: '日本全国の林道情報を地図上で共有できるマップ型SNS。',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export const viewport: Viewport = {
@@ -40,6 +77,23 @@ export default function RootLayout({
             crossOrigin="anonymous"
           />
         )}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: '林道マップ',
+              description: '日本全国の林道情報を地図上で共有できるマップ型SNS',
+              url: 'https://rindou-kv36naukc-horihorisousans-projects.vercel.app',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://rindou-kv36naukc-horihorisousans-projects.vercel.app/?search={search_term_string}',
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
       </head>
       <body className={notoSansJp.className} style={{
         margin: 0,
