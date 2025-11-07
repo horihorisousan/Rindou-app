@@ -204,8 +204,7 @@ function MapPageContent() {
       height: '100%',
       position: 'relative',
       display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden'
+      flexDirection: 'column'
     }}>
       {error && (
         <div style={{
@@ -230,7 +229,8 @@ function MapPageContent() {
         width: '100%',
         flex: 1,
         position: 'relative',
-        minHeight: 0
+        minHeight: 0,
+        overflow: 'hidden'
       }}>
         {loading ? (
           <div style={{
@@ -262,11 +262,15 @@ function MapPageContent() {
         width: '100%',
         backgroundColor: '#fff',
         borderTop: '1px solid #ddd',
-        flexShrink: 0
+        padding: '8px 0',
+        flexShrink: 0,
+        minHeight: '60px',
+        maxHeight: '100px',
+        overflow: 'hidden'
       }}>
         <AdBanner
           dataAdSlot="1234567890"
-          style={{ minHeight: '50px', maxHeight: '100px' }}
+          style={{ height: '90px' }}
         />
       </div>
     </div>

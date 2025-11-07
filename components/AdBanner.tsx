@@ -48,25 +48,17 @@ export default function AdBanner({
   }
 
   return (
-    <div style={{
-      width: '100%',
-      display: 'flex',
-      justifyContent: 'center',
-      margin: '20px 0',
-      ...style
-    }}>
-      <ins
-        className="adsbygoogle"
-        style={{
-          display: 'block',
-          textAlign: 'center',
-          ...style
-        }}
-        data-ad-client={adSenseId}
-        data-ad-slot={dataAdSlot}
-        data-ad-format={dataAdFormat}
-        data-full-width-responsive={dataFullWidthResponsive ? 'true' : 'false'}
-      />
-    </div>
+    <ins
+      className="adsbygoogle"
+      style={{
+        display: 'block',
+        width: '100%',
+        ...style
+      }}
+      data-ad-client={adSenseId}
+      data-ad-slot={dataAdSlot}
+      data-ad-format={dataAdFormat}
+      data-full-width-responsive={dataFullWidthResponsive ? 'true' : 'false'}
+    />
   );
 }
