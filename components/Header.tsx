@@ -25,6 +25,9 @@ export default function Header() {
       backgroundColor: '#2d5016',
       color: 'white',
       padding: '0.75rem 1rem',
+      paddingTop: 'calc(0.75rem + env(safe-area-inset-top))',
+      paddingLeft: 'max(1rem, env(safe-area-inset-left))',
+      paddingRight: 'max(1rem, env(safe-area-inset-right))',
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
       position: 'relative'
     }}>

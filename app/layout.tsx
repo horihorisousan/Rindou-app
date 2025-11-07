@@ -15,6 +15,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
+  viewportFit: 'cover',
 };
 
 const notoSansJp = Noto_Sans_JP({
@@ -31,6 +32,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
         {process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
           <script
             async
