@@ -31,10 +31,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <Script 
-        async 
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2247568702185856" 
-        crossOrigin="anonymous"
+      <head>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2247568702185856" crossorigin="anonymous"></script>
+        </head>
+      <body className={notoSansJp.className} style={{
         strategy="afterInteractive" 
       />
       <body className={notoSansJp.className} style={{
