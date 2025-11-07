@@ -256,17 +256,19 @@ function MapPageContent() {
         )}
       </div>
 
-      {/* 広告バナー */}
-      <div style={{
-        width: '100%',
-        backgroundColor: '#fff',
-        borderTop: '1px solid #ddd'
-      }}>
-        <AdBanner
-          dataAdSlot="1234567890"
-          style={{ minHeight: '50px', maxHeight: '90px' }}
-        />
-      </div>
+      {/* 広告バナー - 一時的に無効化 */}
+      {false && (
+        <div style={{
+          width: '100%',
+          backgroundColor: '#fff',
+          borderTop: '1px solid #ddd'
+        }}>
+          <AdBanner
+            dataAdSlot="1234567890"
+            style={{ minHeight: '50px', maxHeight: '90px' }}
+          />
+        </div>
+      )}
     </div>
   );
 }
