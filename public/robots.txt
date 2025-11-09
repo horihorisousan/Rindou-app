@@ -1,6 +1,0 @@
-# 林道マップ - Robots.txt
-User-agent: *
-Allow: /
-
-# Sitemap
-Sitemap: https://rindou-kv36naukc-horihorisousans-projects.vercel.app/sitemap.xml

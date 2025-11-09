@@ -25,6 +25,19 @@ export default function Footer() {
           flexWrap: 'wrap'
         }}>
           <Link
+            href="/guide"
+            style={{
+              color: 'white',
+              textDecoration: 'none',
+              fontSize: '0.9rem',
+              transition: 'opacity 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+          >
+            利用ガイド
+          </Link>
+          <Link
             href="/privacy-policy"
             style={{
               color: 'white',
