@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { useMenu } from '@/lib/menu-context';
+import { isAdmin } from '@/lib/admin';
 
 export default function Header() {
   const { user, username, signOut, loading } = useAuth();
@@ -139,6 +140,27 @@ export default function Header() {
               >
                 プロフィール
               </Link>
+              {isAdmin(user?.email) && (
+                <Link
+                  href="/admin/import"
+                  style={{
+                    color: 'white',
+                    textDecoration: 'none',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    padding: '0.4rem 0.8rem',
+                    borderRadius: '4px',
+                    transition: 'background-color 0.2s',
+                    backgroundColor: '#ff9800',
+                    textAlign: 'center',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e68900'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ff9800'}
+                >
+                  管理
+                </Link>
+              )}
             </>
           )}
           {!loading && (
@@ -291,6 +313,24 @@ export default function Header() {
               >
                 プロフィール
               </Link>
+              {isAdmin(user?.email) && (
+                <Link
+                  href="/admin/import"
+                  onClick={handleLinkClick}
+                  style={{
+                    color: 'white',
+                    textDecoration: 'none',
+                    fontSize: '1rem',
+                    fontWeight: '500',
+                    padding: '0.75rem',
+                    borderRadius: '4px',
+                    backgroundColor: '#ff9800',
+                    textAlign: 'center'
+                  }}
+                >
+                  管理
+                </Link>
+              )}
               <div style={{
                 padding: '0.5rem 0.75rem',
                 fontSize: '0.9rem',
