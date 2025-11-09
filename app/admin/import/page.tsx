@@ -5,6 +5,13 @@ import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { isAdmin } from '@/lib/admin';
 import { supabaseBrowser } from '@/lib/supabase-browser';
+import dynamic from 'next/dynamic';
+
+// Leafletマップを動的インポート（SSR無効）
+const MapPreview = dynamic(() => import('@/components/MapPreview'), {
+  ssr: false,
+  loading: () => <div style={{ height: '300px', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>地図を読み込み中...</div>,
+});
 
 interface RoadFeature {
   id: string;
@@ -415,12 +422,21 @@ export default function AdminImportPage() {
               backgroundColor: 'white',
               padding: '2rem',
               borderRadius: '8px',
-              maxWidth: '500px',
+              maxWidth: '700px',
               width: '90%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <h2 style={{ marginTop: 0 }}>林道情報を編集</h2>
+
+            {/* 地図プレビュー */}
+            <MapPreview
+              latitude={editingRoad.latitude}
+              longitude={editingRoad.longitude}
+              name={editingRoad.editedName || editingRoad.name}
+            />
 
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
               林道名:
