@@ -254,9 +254,8 @@ export async function POST(request: NextRequest) {
         mergedTags = { ...el.tags, ...mergedTags };
       }
 
-      // 中心点を計算（全座標の中央）
-      const midIndex = Math.floor(allRoutes.length / 2);
-      const centerPoint = allRoutes[midIndex];
+      // 起点（ルートの最初の座標）を使用
+      const startPoint = allRoutes[0];
 
       // 複数のIDを結合（デバッグ用）
       const combinedId = elements.map((el: any) => el.id).join('-');
@@ -264,8 +263,8 @@ export async function POST(request: NextRequest) {
       return {
         id: combinedId,
         name: name,
-        latitude: centerPoint.lat,
-        longitude: centerPoint.lng,
+        latitude: startPoint.lat,
+        longitude: startPoint.lng,
         tags: mergedTags,
         route: allRoutes,
       };
