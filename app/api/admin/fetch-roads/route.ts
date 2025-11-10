@@ -76,6 +76,19 @@ export async function POST(request: NextRequest) {
 
     const bounds = PREFECTURE_BOUNDS[prefecture];
 
+    // 既存の林道名を取得（重複チェック用）
+    const { data: existingRoads, error: roadsError } = await supabase
+      .from('roads')
+      .select('name');
+
+    if (roadsError) {
+      console.error('Error fetching existing roads:', roadsError);
+    }
+
+    const existingRoadNames = new Set(
+      existingRoads?.map(road => road.name.trim().toLowerCase()) || []
+    );
+
     // Overpass API クエリ
     // highway=track (林道) または highway=service + surface=unpaved を取得
     let overpassQuery: string;
@@ -243,8 +256,13 @@ export async function POST(request: NextRequest) {
       return connected.flat();
     };
 
-    // グループ化された林道を1つにまとめる
-    const roads: RoadFeature[] = Array.from(groupedByName.entries()).map(([name, elements]) => {
+    // グループ化された林道を1つにまとめる（既存の林道は除外）
+    const roads: RoadFeature[] = Array.from(groupedByName.entries())
+      .filter(([name, _]) => {
+        // 既存の林道名と重複していないかチェック
+        return !existingRoadNames.has(name.trim().toLowerCase());
+      })
+      .map(([name, elements]) => {
       // wayを正しい順序で接続
       const allRoutes = connectWays(elements);
 
