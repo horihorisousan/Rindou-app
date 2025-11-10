@@ -40,16 +40,10 @@ function MapPageContent() {
   const searchParams = useSearchParams();
   const hasInitializedLocation = useRef(false);
 
-  // 認証チェック: 未ログインの場合はログインページにリダイレクト
+  // 林道データは未ログインでも取得可能
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login');
-    }
-  }, [authLoading, user, router]);
-
-  useEffect(() => {
+    fetchRoads();
     if (user) {
-      fetchRoads();
       fetchUserLikes();
     }
   }, [user]);
@@ -178,25 +172,6 @@ function MapPageContent() {
       console.error('Error fetching user likes:', err);
     }
   };
-
-  // 認証チェック中の表示
-  if (authLoading) {
-    return (
-      <div style={{
-        minHeight: 'calc(100vh - 64px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <p style={{ color: '#666', fontSize: '1.1rem' }}>読み込み中...</p>
-      </div>
-    );
-  }
-
-  // 未ログインの場合は何も表示しない（リダイレクト中）
-  if (!user) {
-    return null;
-  }
 
   return (
     <div style={{
