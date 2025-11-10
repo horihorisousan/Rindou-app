@@ -28,6 +28,8 @@ interface RoadFeature {
   editedName?: string;
   editedDescription?: string;
   route?: Coordinate[];
+  hasLongSegments?: boolean;
+  maxSegmentDistance?: number;
 }
 
 const PREFECTURES = [
@@ -125,20 +127,31 @@ export default function AdminImportPage() {
   };
 
   const bulkImport = async () => {
-    const approvedRoads = roads
-      .filter(r => r.status === 'approved')
-      .map(r => ({
-        name: r.editedName || r.name,
-        description: r.editedDescription || generateDescription(r.tags),
-        latitude: r.latitude,
-        longitude: r.longitude,
-        route: r.route || null,
-      }));
+    const approvedRoads = roads.filter(r => r.status === 'approved');
 
     if (approvedRoads.length === 0) {
       setError('承認された林道がありません');
       return;
     }
+
+    // 警告がある林道をチェック
+    const roadsWithWarnings = approvedRoads.filter(r => r.hasLongSegments);
+    if (roadsWithWarnings.length > 0) {
+      const warningNames = roadsWithWarnings.map(r => r.editedName || r.name).join(', ');
+      if (!window.confirm(
+        `以下の林道に100m以上の直線が含まれています:\n${warningNames}\n\nこのまま投稿しますか？\n\n※編集画面で地図を確認することをお勧めします。`
+      )) {
+        return;
+      }
+    }
+
+    const roadsToImport = approvedRoads.map(r => ({
+      name: r.editedName || r.name,
+      description: r.editedDescription || generateDescription(r.tags),
+      latitude: r.latitude,
+      longitude: r.longitude,
+      route: r.route || null,
+    }));
 
     setImporting(true);
     setError(null);
@@ -156,7 +169,7 @@ export default function AdminImportPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ roads: approvedRoads }),
+        body: JSON.stringify({ roads: roadsToImport }),
       });
 
       if (!response.ok) {
@@ -353,6 +366,23 @@ export default function AdminImportPage() {
                   <p style={{ fontSize: '0.85rem', color: '#2d5016', marginBottom: '0.5rem', fontWeight: 'bold' }}>
                     ✓ ルート情報あり ({road.route.length}ポイント)
                   </p>
+                )}
+                {road.hasLongSegments && (
+                  <div style={{
+                    fontSize: '0.85rem',
+                    color: '#fff',
+                    backgroundColor: '#dc2626',
+                    padding: '0.5rem',
+                    borderRadius: '4px',
+                    marginBottom: '0.5rem',
+                    fontWeight: 'bold'
+                  }}>
+                    ⚠ 要確認: 100m以上の直線あり (最大{road.maxSegmentDistance}m)
+                    <br />
+                    <span style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>
+                      離れた2地点が直線で結ばれている可能性があります
+                    </span>
+                  </div>
                 )}
                 <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
                   {road.editedDescription || generateDescription(road.tags)}

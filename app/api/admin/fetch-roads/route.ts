@@ -33,6 +33,8 @@ interface RoadFeature {
   longitude: number;
   tags: Record<string, string>;
   route?: Coordinate[];
+  hasLongSegments?: boolean;
+  maxSegmentDistance?: number;
 }
 
 export async function POST(request: NextRequest) {
@@ -160,6 +162,40 @@ export async function POST(request: NextRequest) {
       return Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
     };
 
+    // Haversine公式で2点間の実距離（メートル）を計算
+    const haversineDistance = (p1: Coordinate, p2: Coordinate): number => {
+      const R = 6371000; // 地球の半径（メートル）
+      const lat1 = p1.lat * Math.PI / 180;
+      const lat2 = p2.lat * Math.PI / 180;
+      const deltaLat = (p2.lat - p1.lat) * Math.PI / 180;
+      const deltaLng = (p2.lng - p1.lng) * Math.PI / 180;
+
+      const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                Math.cos(lat1) * Math.cos(lat2) *
+                Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      return R * c; // メートル単位の距離
+    };
+
+    // ルート内に100m以上の直線セグメントがあるかチェック
+    const checkLongSegments = (route: Coordinate[]): { hasLongSegments: boolean; maxDistance: number } => {
+      let maxDistance = 0;
+      let hasLongSegments = false;
+
+      for (let i = 0; i < route.length - 1; i++) {
+        const dist = haversineDistance(route[i], route[i + 1]);
+        if (dist > maxDistance) {
+          maxDistance = dist;
+        }
+        if (dist > 100) { // 100m以上
+          hasLongSegments = true;
+        }
+      }
+
+      return { hasLongSegments, maxDistance };
+    };
+
     // wayセグメントを正しい順序で接続
     const connectWays = (elements: any[]): Coordinate[] => {
       if (elements.length === 0) return [];
@@ -278,6 +314,9 @@ export async function POST(request: NextRequest) {
       // 複数のIDを結合（デバッグ用）
       const combinedId = elements.map((el: any) => el.id).join('-');
 
+      // ルートの長いセグメントをチェック
+      const { hasLongSegments, maxDistance } = checkLongSegments(allRoutes);
+
       return {
         id: combinedId,
         name: name,
@@ -285,6 +324,8 @@ export async function POST(request: NextRequest) {
         longitude: startPoint.lng,
         tags: mergedTags,
         route: allRoutes,
+        hasLongSegments,
+        maxSegmentDistance: Math.round(maxDistance),
       };
     })
     .slice(0, 100); // 最大100件に制限
