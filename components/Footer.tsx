@@ -1,9 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const pathname = usePathname();
+
+  // ホーム画面では非表示
+  if (pathname === '/') {
+    return null;
+  }
 
   return (
     <footer style={{
