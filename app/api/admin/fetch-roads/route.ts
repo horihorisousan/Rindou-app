@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// 都道府県の境界ボックス（簡易版）
+// 都道府県の境界ボックス（全47都道府県）
 const PREFECTURE_BOUNDS: Record<string, { south: number; west: number; north: number; east: number }> = {
+  '北海道': { south: 41.4, west: 139.4, north: 45.5, east: 145.8 },
+  '青森県': { south: 40.2, west: 139.5, north: 41.6, east: 141.7 },
+  '岩手県': { south: 38.9, west: 140.8, north: 40.4, east: 142.1 },
+  '宮城県': { south: 37.8, west: 140.3, north: 38.9, east: 141.7 },
+  '秋田県': { south: 39.1, west: 139.6, north: 40.7, east: 141.0 },
+  '山形県': { south: 37.7, west: 139.5, north: 39.0, east: 140.7 },
+  '福島県': { south: 36.8, west: 139.3, north: 38.0, east: 141.1 },
   '茨城県': { south: 35.7, west: 139.7, north: 36.9, east: 140.9 },
   '栃木県': { south: 36.2, west: 139.3, north: 37.0, east: 140.3 },
   '群馬県': { south: 36.0, west: 138.4, north: 36.7, east: 139.5 },
@@ -19,6 +26,30 @@ const PREFECTURE_BOUNDS: Record<string, { south: number; west: number; north: nu
   '岐阜県': { south: 35.3, west: 136.5, north: 36.3, east: 137.9 },
   '静岡県': { south: 34.6, west: 137.5, north: 35.4, east: 139.2 },
   '愛知県': { south: 34.6, west: 136.7, north: 35.4, east: 137.8 },
+  '三重県': { south: 33.7, west: 135.8, north: 35.0, east: 136.9 },
+  '滋賀県': { south: 34.8, west: 135.8, north: 35.7, east: 136.5 },
+  '京都府': { south: 34.8, west: 134.9, north: 35.8, east: 135.9 },
+  '大阪府': { south: 34.3, west: 135.1, north: 35.0, east: 135.7 },
+  '兵庫県': { south: 34.3, west: 134.3, north: 35.7, east: 135.5 },
+  '奈良県': { south: 33.9, west: 135.7, north: 34.8, east: 136.2 },
+  '和歌山県': { south: 33.4, west: 135.1, north: 34.4, east: 136.0 },
+  '鳥取県': { south: 35.1, west: 133.2, north: 35.7, east: 134.5 },
+  '島根県': { south: 34.3, west: 131.8, north: 36.0, east: 133.5 },
+  '岡山県': { south: 34.3, west: 133.2, north: 35.4, east: 134.5 },
+  '広島県': { south: 34.0, west: 132.0, north: 35.1, east: 133.5 },
+  '山口県': { south: 33.7, west: 130.8, north: 34.7, east: 132.5 },
+  '徳島県': { south: 33.6, west: 133.5, north: 34.3, east: 134.8 },
+  '香川県': { south: 34.0, west: 133.4, north: 34.5, east: 134.5 },
+  '愛媛県': { south: 32.9, west: 132.4, north: 34.3, east: 133.4 },
+  '高知県': { south: 32.7, west: 132.5, north: 33.9, east: 134.3 },
+  '福岡県': { south: 33.0, west: 130.1, north: 34.0, east: 131.3 },
+  '佐賀県': { south: 33.0, west: 129.8, north: 33.6, east: 130.5 },
+  '長崎県': { south: 32.6, west: 128.7, north: 34.7, east: 130.4 },
+  '熊本県': { south: 32.0, west: 130.3, north: 33.3, east: 131.3 },
+  '大分県': { south: 32.8, west: 130.8, north: 33.7, east: 132.0 },
+  '宮崎県': { south: 31.4, west: 130.7, north: 32.9, east: 131.9 },
+  '鹿児島県': { south: 28.0, west: 128.3, north: 32.2, east: 131.5 },
+  '沖縄県': { south: 24.0, west: 122.9, north: 28.0, east: 132.0 },
 };
 
 interface Coordinate {
