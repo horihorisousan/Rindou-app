@@ -184,7 +184,7 @@ function MapPageContent() {
       {error && (
         <div style={{
           position: 'absolute',
-          top: '74px',
+          top: '68px',
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 1000,
