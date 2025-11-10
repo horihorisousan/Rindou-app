@@ -140,20 +140,117 @@ export async function POST(request: NextRequest) {
       groupedByName.get(name)!.push(el);
     }
 
-    // グループ化された林道を1つにまとめる
-    const roads: RoadFeature[] = Array.from(groupedByName.entries()).map(([name, elements]) => {
-      // すべてのwayのルート座標を結合
-      const allRoutes: Coordinate[] = [];
-      let mergedTags: Record<string, string> = {};
+    // 2点間の距離を計算（簡易版：度数での距離）
+    const distance = (p1: Coordinate, p2: Coordinate): number => {
+      const latDiff = p1.lat - p2.lat;
+      const lngDiff = p1.lng - p2.lng;
+      return Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
+    };
 
-      for (const el of elements) {
-        const route: Coordinate[] = el.geometry.map((node: any) => ({
+    // wayセグメントを正しい順序で接続
+    const connectWays = (elements: any[]): Coordinate[] => {
+      if (elements.length === 0) return [];
+      if (elements.length === 1) {
+        return elements[0].geometry.map((node: any) => ({
           lat: node.lat,
           lng: node.lon,
         }));
-        allRoutes.push(...route);
+      }
 
-        // tagsをマージ（最初の値を優先）
+      // 各wayを座標配列に変換
+      const ways: Coordinate[][] = elements.map((el: any) =>
+        el.geometry.map((node: any) => ({
+          lat: node.lat,
+          lng: node.lon,
+        }))
+      );
+
+      const connected: Coordinate[][] = [ways[0]];
+      const remaining = ways.slice(1);
+
+      // 全てのwayを接続するまで繰り返す
+      while (remaining.length > 0) {
+        const current = connected[connected.length - 1];
+        const currentEnd = current[current.length - 1];
+        const currentStart = current[0];
+
+        let bestIndex = -1;
+        let bestDistance = Infinity;
+        let shouldReverse = false;
+        let connectToStart = false;
+
+        // 現在のwayの終点または始点に最も近いwayを探す
+        for (let i = 0; i < remaining.length; i++) {
+          const candidate = remaining[i];
+          const candStart = candidate[0];
+          const candEnd = candidate[candidate.length - 1];
+
+          // 4つの接続パターンをチェック
+          // 1. 現在の終点 → 候補の始点
+          const dist1 = distance(currentEnd, candStart);
+          if (dist1 < bestDistance) {
+            bestDistance = dist1;
+            bestIndex = i;
+            shouldReverse = false;
+            connectToStart = false;
+          }
+
+          // 2. 現在の終点 → 候補の終点（候補を反転）
+          const dist2 = distance(currentEnd, candEnd);
+          if (dist2 < bestDistance) {
+            bestDistance = dist2;
+            bestIndex = i;
+            shouldReverse = true;
+            connectToStart = false;
+          }
+
+          // 3. 現在の始点 → 候補の終点（候補を先頭に追加）
+          const dist3 = distance(currentStart, candEnd);
+          if (dist3 < bestDistance) {
+            bestDistance = dist3;
+            bestIndex = i;
+            shouldReverse = false;
+            connectToStart = true;
+          }
+
+          // 4. 現在の始点 → 候補の始点（候補を反転して先頭に追加）
+          const dist4 = distance(currentStart, candStart);
+          if (dist4 < bestDistance) {
+            bestDistance = dist4;
+            bestIndex = i;
+            shouldReverse = true;
+            connectToStart = true;
+          }
+        }
+
+        if (bestIndex === -1) break; // 接続できるwayがない場合
+
+        let nextWay = remaining[bestIndex];
+        if (shouldReverse) {
+          nextWay = [...nextWay].reverse();
+        }
+
+        if (connectToStart) {
+          connected.unshift(nextWay);
+        } else {
+          connected.push(nextWay);
+        }
+
+        remaining.splice(bestIndex, 1);
+      }
+
+      // 接続された全ての座標を結合
+      return connected.flat();
+    };
+
+    // グループ化された林道を1つにまとめる
+    const roads: RoadFeature[] = Array.from(groupedByName.entries()).map(([name, elements]) => {
+      // wayを正しい順序で接続
+      const allRoutes = connectWays(elements);
+
+      // tagsをマージ（最初の値を優先）
+      let mergedTags: Record<string, string> = {};
+      for (const el of elements) {
         mergedTags = { ...el.tags, ...mergedTags };
       }
 
