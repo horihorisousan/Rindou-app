@@ -30,7 +30,8 @@ export default function Header() {
       paddingLeft: 'max(1rem, env(safe-area-inset-left))',
       paddingRight: 'max(1rem, env(safe-area-inset-right))',
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      position: 'relative'
+      position: 'relative',
+      zIndex: 1000
     }}>
       <nav style={{
         display: 'flex',
@@ -66,7 +67,9 @@ export default function Header() {
             color: 'white',
             fontSize: '1.5rem',
             cursor: 'pointer',
-            padding: '0.5rem'
+            padding: '0.5rem',
+            position: 'relative',
+            zIndex: 1001
           }}
         >
           {mobileMenuOpen ? '✕' : '☰'}
@@ -260,7 +263,7 @@ export default function Header() {
             padding: '1rem',
             flexDirection: 'column',
             gap: '0.75rem',
-            zIndex: 1000
+            zIndex: 999
           }}
         >
           <Link
