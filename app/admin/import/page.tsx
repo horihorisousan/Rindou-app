@@ -30,6 +30,7 @@ interface RoadFeature {
   route?: Coordinate[];
   hasLongSegments?: boolean;
   maxSegmentDistance?: number;
+  totalDistance?: number;
 }
 
 const PREFECTURES = [

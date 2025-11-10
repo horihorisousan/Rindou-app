@@ -35,6 +35,7 @@ interface RoadFeature {
   route?: Coordinate[];
   hasLongSegments?: boolean;
   maxSegmentDistance?: number;
+  totalDistance?: number;
 }
 
 export async function POST(request: NextRequest) {
@@ -178,6 +179,15 @@ export async function POST(request: NextRequest) {
       return R * c; // メートル単位の距離
     };
 
+    // ルート全体の長さを計算
+    const calculateTotalDistance = (route: Coordinate[]): number => {
+      let totalDistance = 0;
+      for (let i = 0; i < route.length - 1; i++) {
+        totalDistance += haversineDistance(route[i], route[i + 1]);
+      }
+      return totalDistance;
+    };
+
     // ルート内に100m以上の直線セグメントがあるかチェック
     const checkLongSegments = (route: Coordinate[]): { hasLongSegments: boolean; maxDistance: number } => {
       let maxDistance = 0;
@@ -292,7 +302,7 @@ export async function POST(request: NextRequest) {
       return connected.flat();
     };
 
-    // グループ化された林道を1つにまとめる（既存の林道は除外）
+    // グループ化された林道を1つにまとめる（既存の林道と100m以下の短い道は除外）
     const roads: RoadFeature[] = Array.from(groupedByName.entries())
       .filter(([name, _]) => {
         // 既存の林道名と重複していないかチェック
@@ -317,6 +327,9 @@ export async function POST(request: NextRequest) {
       // ルートの長いセグメントをチェック
       const { hasLongSegments, maxDistance } = checkLongSegments(allRoutes);
 
+      // ルート全体の長さを計算
+      const totalDistance = calculateTotalDistance(allRoutes);
+
       return {
         id: combinedId,
         name: name,
@@ -326,8 +339,10 @@ export async function POST(request: NextRequest) {
         route: allRoutes,
         hasLongSegments,
         maxSegmentDistance: Math.round(maxDistance),
+        totalDistance: Math.round(totalDistance),
       };
     })
+    .filter(road => road.totalDistance > 100) // 100m以下の短い道を除外
     .slice(0, 100); // 最大100件に制限
 
     return NextResponse.json({ roads, count: roads.length });
