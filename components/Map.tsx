@@ -231,7 +231,7 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
 
       <MarkerClusterGroup
         chunkedLoading
-        iconCreateFunction={(cluster) => {
+        iconCreateFunction={(cluster: L.MarkerCluster) => {
           const count = cluster.getChildCount();
           return L.divIcon({
             html: `<div style="
