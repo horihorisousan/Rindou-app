@@ -124,29 +124,56 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    const roads: RoadFeature[] = data.elements
-      .filter((el: any) => el.geometry && el.geometry.length > 0 && (el.tags?.name || el.tags?.ref)) // ジオメトリと名前があるもののみ
-      .map((el: any) => {
-        // wayの座標配列を取得
+    // まず、ジオメトリと名前があるものをフィルタリング
+    const validElements = data.elements.filter(
+      (el: any) => el.geometry && el.geometry.length > 0 && (el.tags?.name || el.tags?.ref)
+    );
+
+    // 名前でグループ化
+    const groupedByName = new Map<string, any[]>();
+
+    for (const el of validElements) {
+      const name = el.tags?.name || el.tags?.ref || `林道 ${el.id}`;
+      if (!groupedByName.has(name)) {
+        groupedByName.set(name, []);
+      }
+      groupedByName.get(name)!.push(el);
+    }
+
+    // グループ化された林道を1つにまとめる
+    const roads: RoadFeature[] = Array.from(groupedByName.entries()).map(([name, elements]) => {
+      // すべてのwayのルート座標を結合
+      const allRoutes: Coordinate[] = [];
+      let mergedTags: Record<string, string> = {};
+
+      for (const el of elements) {
         const route: Coordinate[] = el.geometry.map((node: any) => ({
           lat: node.lat,
           lng: node.lon,
         }));
+        allRoutes.push(...route);
 
-        // 中心点を計算（経路の中央の座標）
-        const midIndex = Math.floor(route.length / 2);
-        const centerPoint = route[midIndex];
+        // tagsをマージ（最初の値を優先）
+        mergedTags = { ...el.tags, ...mergedTags };
+      }
 
-        return {
-          id: el.id.toString(),
-          name: el.tags?.name || el.tags?.ref || `林道 ${el.id}`,
-          latitude: centerPoint.lat,
-          longitude: centerPoint.lng,
-          tags: el.tags || {},
-          route: route,
-        };
-      })
-      .slice(0, 100); // 最大100件に制限
+      // 中心点を計算（全座標の中央）
+      const midIndex = Math.floor(allRoutes.length / 2);
+      const centerPoint = allRoutes[midIndex];
+
+      // 複数のIDを結合（デバッグ用）
+      const combinedId = elements.map((el: any) => el.id).join('-');
+
+      return {
+        id: combinedId,
+        name: name,
+        latitude: centerPoint.lat,
+        longitude: centerPoint.lng,
+        tags: mergedTags,
+        route: allRoutes,
+      };
+    })
+    .slice(0, 100); // 最大100件に制限
 
     return NextResponse.json({ roads, count: roads.length });
 
