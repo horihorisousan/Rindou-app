@@ -371,11 +371,16 @@ export default function ProfilePage() {
             </div>
           ) : (
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: '16px',
+              maxHeight: 'calc(100vh - 400px)',
+              overflowY: 'auto',
+              paddingRight: '8px',
             }}>
-              {postedRoads.map((road) => (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '16px',
+              }}>
+                {postedRoads.map((road) => (
                 <div
                   key={road.id}
                   style={{
@@ -512,6 +517,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
           )}
               </div>
@@ -563,11 +569,16 @@ export default function ProfilePage() {
             </div>
           ) : (
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: '16px',
+              maxHeight: 'calc(100vh - 400px)',
+              overflowY: 'auto',
+              paddingRight: '8px',
             }}>
-              {likedRoads.map((like) => (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '16px',
+              }}>
+                {likedRoads.map((like) => (
                 <div
                   key={like.id}
                   style={{
@@ -677,6 +688,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
           )}
               </div>
