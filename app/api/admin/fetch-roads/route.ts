@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
     }
 
-    const { prefecture } = await request.json();
+    const { prefecture, city } = await request.json();
 
     if (!prefecture || !PREFECTURE_BOUNDS[prefecture]) {
       return NextResponse.json({ error: '都道府県を指定してください' }, { status: 400 });
@@ -72,14 +72,36 @@ export async function POST(request: NextRequest) {
 
     // Overpass API クエリ
     // highway=track (林道) または highway=service + surface=unpaved を取得
-    const overpassQuery = `
-      [out:json][timeout:25];
-      (
-        way["highway"="track"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
-        way["highway"="service"]["surface"="unpaved"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
-      );
-      out center;
-    `;
+    let overpassQuery: string;
+
+    if (city && city.trim()) {
+      // 市区町村が指定された場合はエリアベースのクエリを使用
+      overpassQuery = `
+        [out:json][timeout:25];
+        area["name"="${prefecture}"]["admin_level"~"^(3|4)$"]->.prefecture;
+        (
+          area["name"="${city.trim()}"](area.prefecture);
+          area["name"="${city.trim()}市"](area.prefecture);
+          area["name"="${city.trim()}町"](area.prefecture);
+          area["name"="${city.trim()}村"](area.prefecture);
+        )->.city;
+        (
+          way["highway"="track"](area.city);
+          way["highway"="service"]["surface"="unpaved"](area.city);
+        );
+        out center;
+      `;
+    } else {
+      // 都道府県のみの場合は境界ボックスを使用
+      overpassQuery = `
+        [out:json][timeout:25];
+        (
+          way["highway"="track"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
+          way["highway"="service"]["surface"="unpaved"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
+        );
+        out center;
+      `;
+    }
 
     const overpassUrl = 'https://overpass-api.de/api/interpreter';
     const response = await fetch(overpassUrl, {
@@ -97,7 +119,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
 
     const roads: RoadFeature[] = data.elements
-      .filter((el: any) => el.center) // center座標がある要素のみ
+      .filter((el: any) => el.center && (el.tags?.name || el.tags?.ref)) // center座標と名前があるもののみ
       .map((el: any) => ({
         id: el.id.toString(),
         name: el.tags?.name || el.tags?.ref || `林道 ${el.id}`,

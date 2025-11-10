@@ -34,6 +34,7 @@ export default function AdminImportPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [selectedPrefecture, setSelectedPrefecture] = useState('');
+  const [cityName, setCityName] = useState('');
   const [roads, setRoads] = useState<RoadFeature[]>([]);
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -66,11 +67,15 @@ export default function AdminImportPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ prefecture: selectedPrefecture }),
+        body: JSON.stringify({
+          prefecture: selectedPrefecture,
+          city: cityName.trim() || undefined,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error('林道データの取得に失敗しました');
+        const errorData = await response.json();
+        throw new Error(errorData.error || '林道データの取得に失敗しました');
       }
 
       const data = await response.json();
@@ -148,11 +153,20 @@ export default function AdminImportPage() {
       });
 
       if (!response.ok) {
-        throw new Error('一括投稿に失敗しました');
+        const errorData = await response.json();
+        throw new Error(errorData.error || '一括投稿に失敗しました');
       }
 
       const data = await response.json();
-      setSuccess(`${data.inserted}件の林道を投稿しました`);
+
+      // 成功とエラーの両方がある場合
+      if (data.errors > 0) {
+        setSuccess(`${data.inserted}件の林道を投稿しました（${data.errors}件失敗）`);
+        setError(`失敗した林道: ${data.details.map((d: any) => d.road).join(', ')}`);
+      } else {
+        setSuccess(`${data.inserted}件の林道を投稿しました`);
+      }
+
       setRoads([]);
     } catch (err: any) {
       setError(err.message);
@@ -212,6 +226,24 @@ export default function AdminImportPage() {
             <option key={pref} value={pref}>{pref}</option>
           ))}
         </select>
+
+        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', marginTop: '1rem' }}>
+          市区町村名（オプション）:
+        </label>
+        <input
+          type="text"
+          placeholder="例: つくば市"
+          value={cityName}
+          onChange={(e) => setCityName(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '0.75rem',
+            fontSize: '1rem',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            marginBottom: '1rem',
+          }}
+        />
 
         <button
           onClick={fetchRoads}

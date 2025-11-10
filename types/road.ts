@@ -1,5 +1,5 @@
-// 林道の路面状態（5段階評価）
-export type RoadCondition = 'excellent' | 'good' | 'fair' | 'poor' | 'very_poor';
+// 林道の路面状態（5段階評価 + 不明）
+export type RoadCondition = 'excellent' | 'good' | 'fair' | 'poor' | 'very_poor' | 'unknown';
 
 // 路面状態のラベル
 export const ROAD_CONDITION_LABELS: Record<RoadCondition, string> = {
@@ -8,6 +8,7 @@ export const ROAD_CONDITION_LABELS: Record<RoadCondition, string> = {
   fair: '普通',
   poor: 'やや悪い',
   very_poor: '非常に悪い',
+  unknown: '不明',
 };
 
 export interface Coordinate {

@@ -24,7 +24,8 @@
       "Bash(git add:*)",
       "WebFetch(domain:rindou-kv36naukc-horihorisousans-projects.vercel.app)",
       "Bash(pkill:*)",
-      "Bash(.env.local)"
+      "Bash(.env.local)",
+      "Bash(psql:*)"
     ],
     "deny": [],
     "ask": []

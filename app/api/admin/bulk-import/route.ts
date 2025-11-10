@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
           description: road.description,
           latitude: road.latitude,
           longitude: road.longitude,
+          condition: 'unknown', // デフォルトで不明な状態として登録
           user_id: user.id,
         })
         .select()
