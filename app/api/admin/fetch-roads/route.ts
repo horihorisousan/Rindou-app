@@ -21,12 +21,18 @@ const PREFECTURE_BOUNDS: Record<string, { south: number; west: number; north: nu
   '愛知県': { south: 34.6, west: 136.7, north: 35.4, east: 137.8 },
 };
 
+interface Coordinate {
+  lat: number;
+  lng: number;
+}
+
 interface RoadFeature {
   id: string;
   name: string;
   latitude: number;
   longitude: number;
   tags: Record<string, string>;
+  route?: Coordinate[];
 }
 
 export async function POST(request: NextRequest) {
@@ -89,7 +95,7 @@ export async function POST(request: NextRequest) {
           way["highway"="track"](area.city);
           way["highway"="service"]["surface"="unpaved"](area.city);
         );
-        out center;
+        out geom;
       `;
     } else {
       // 都道府県のみの場合は境界ボックスを使用
@@ -99,7 +105,7 @@ export async function POST(request: NextRequest) {
           way["highway"="track"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
           way["highway"="service"]["surface"="unpaved"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
         );
-        out center;
+        out geom;
       `;
     }
 
@@ -119,14 +125,27 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
 
     const roads: RoadFeature[] = data.elements
-      .filter((el: any) => el.center && (el.tags?.name || el.tags?.ref)) // center座標と名前があるもののみ
-      .map((el: any) => ({
-        id: el.id.toString(),
-        name: el.tags?.name || el.tags?.ref || `林道 ${el.id}`,
-        latitude: el.center.lat,
-        longitude: el.center.lon,
-        tags: el.tags || {},
-      }))
+      .filter((el: any) => el.geometry && el.geometry.length > 0 && (el.tags?.name || el.tags?.ref)) // ジオメトリと名前があるもののみ
+      .map((el: any) => {
+        // wayの座標配列を取得
+        const route: Coordinate[] = el.geometry.map((node: any) => ({
+          lat: node.lat,
+          lng: node.lon,
+        }));
+
+        // 中心点を計算（経路の中央の座標）
+        const midIndex = Math.floor(route.length / 2);
+        const centerPoint = route[midIndex];
+
+        return {
+          id: el.id.toString(),
+          name: el.tags?.name || el.tags?.ref || `林道 ${el.id}`,
+          latitude: centerPoint.lat,
+          longitude: centerPoint.lng,
+          tags: el.tags || {},
+          route: route,
+        };
+      })
       .slice(0, 100); // 最大100件に制限
 
     return NextResponse.json({ roads, count: roads.length });

@@ -4,13 +4,19 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+interface Coordinate {
+  lat: number;
+  lng: number;
+}
+
 interface MapPreviewProps {
   latitude: number;
   longitude: number;
   name: string;
+  route?: Coordinate[];
 }
 
-export default function MapPreview({ latitude, longitude, name }: MapPreviewProps) {
+export default function MapPreview({ latitude, longitude, name, route }: MapPreviewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
 
@@ -35,11 +41,26 @@ export default function MapPreview({ latitude, longitude, name }: MapPreviewProp
       shadowSize: [41, 41],
     });
 
-    // マーカー追加
-    L.marker([latitude, longitude], { icon })
-      .addTo(map)
-      .bindPopup(`<b>${name}</b><br>緯度: ${latitude.toFixed(5)}<br>経度: ${longitude.toFixed(5)}`)
-      .openPopup();
+    // ルート情報がある場合はPolylineを描画
+    if (route && route.length > 1) {
+      const latlngs: [number, number][] = route.map(coord => [coord.lat, coord.lng]);
+
+      L.polyline(latlngs, {
+        color: '#ef4444',
+        weight: 5,
+        opacity: 0.8,
+      }).addTo(map);
+
+      // ルート全体が見えるようにマップをフィット
+      const bounds = L.latLngBounds(latlngs);
+      map.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+      // ルートがない場合はマーカーのみ表示
+      L.marker([latitude, longitude], { icon })
+        .addTo(map)
+        .bindPopup(`<b>${name}</b><br>緯度: ${latitude.toFixed(5)}<br>経度: ${longitude.toFixed(5)}`)
+        .openPopup();
+    }
 
     mapInstance.current = map;
 
@@ -49,7 +70,7 @@ export default function MapPreview({ latitude, longitude, name }: MapPreviewProp
         mapInstance.current = null;
       }
     };
-  }, [latitude, longitude, name]);
+  }, [latitude, longitude, name, route]);
 
   return (
     <div

@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+interface Coordinate {
+  lat: number;
+  lng: number;
+}
+
 interface RoadToImport {
   name: string;
   description: string;
   latitude: number;
   longitude: number;
+  route?: Coordinate[];
 }
 
 export async function POST(request: NextRequest) {
@@ -59,6 +65,7 @@ export async function POST(request: NextRequest) {
           description: road.description,
           latitude: road.latitude,
           longitude: road.longitude,
+          route: road.route || null, // ルート情報を保存
           condition: 'unknown', // デフォルトで不明な状態として登録
           user_id: user.id,
         })

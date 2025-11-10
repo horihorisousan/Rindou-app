@@ -13,6 +13,11 @@ const MapPreview = dynamic(() => import('@/components/MapPreview'), {
   loading: () => <div style={{ height: '300px', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>地図を読み込み中...</div>,
 });
 
+interface Coordinate {
+  lat: number;
+  lng: number;
+}
+
 interface RoadFeature {
   id: string;
   name: string;
@@ -22,6 +27,7 @@ interface RoadFeature {
   status: 'pending' | 'approved' | 'skipped';
   editedName?: string;
   editedDescription?: string;
+  route?: Coordinate[];
 }
 
 const PREFECTURES = [
@@ -126,6 +132,7 @@ export default function AdminImportPage() {
         description: r.editedDescription || generateDescription(r.tags),
         latitude: r.latitude,
         longitude: r.longitude,
+        route: r.route || null,
       }));
 
     if (approvedRoads.length === 0) {
@@ -342,6 +349,11 @@ export default function AdminImportPage() {
                 <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
                   緯度: {road.latitude.toFixed(5)}, 経度: {road.longitude.toFixed(5)}
                 </p>
+                {road.route && road.route.length > 1 && (
+                  <p style={{ fontSize: '0.85rem', color: '#2d5016', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                    ✓ ルート情報あり ({road.route.length}ポイント)
+                  </p>
+                )}
                 <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
                   {road.editedDescription || generateDescription(road.tags)}
                 </p>
@@ -468,6 +480,7 @@ export default function AdminImportPage() {
               latitude={editingRoad.latitude}
               longitude={editingRoad.longitude}
               name={editingRoad.editedName || editingRoad.name}
+              route={editingRoad.route}
             />
 
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
