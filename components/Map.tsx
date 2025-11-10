@@ -35,6 +35,21 @@ function MapClickHandler({ onClick }: { onClick?: (lat: number, lng: number) => 
   return null;
 }
 
+function ZoomMonitor({ onZoomChange }: { onZoomChange: (zoom: number) => void }) {
+  const map = useMapEvents({
+    zoomend: () => {
+      onZoomChange(map.getZoom());
+    },
+  });
+
+  useEffect(() => {
+    // 初期ズームレベルを設定
+    onZoomChange(map.getZoom());
+  }, [map, onZoomChange]);
+
+  return null;
+}
+
 function FlyToUserLocation({ userLocation }: { userLocation: [number, number] | null }) {
   const map = useMap();
   const hasFlown = useRef(false);
@@ -90,7 +105,11 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
   const [isClient, setIsClient] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [searchLocation, setSearchLocation] = useState<[number, number] | null>(null);
+  const [currentZoom, setCurrentZoom] = useState(zoom);
   const iconInitialized = useRef(false);
+
+  // ズームレベル12以上で林道を表示
+  const MIN_ZOOM_TO_SHOW_ROADS = 12;
 
   useEffect(() => {
     setIsClient(true);
@@ -131,6 +150,10 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
   const handleLocationSelect = useCallback((lat: number, lng: number, name: string) => {
     console.log('Location selected:', name, lat, lng);
     setSearchLocation([lat, lng]);
+  }, []);
+
+  const handleZoomChange = useCallback((newZoom: number) => {
+    setCurrentZoom(newZoom);
   }, []);
 
   const createCustomIcon = (color: string) => {
@@ -178,6 +201,32 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
   return (
     <div style={{ height: '100%', width: '100%', position: 'relative' }}>
       <SearchBar onLocationSelect={handleLocationSelect} />
+
+      {/* ズームアウト時のメッセージ */}
+      {currentZoom < MIN_ZOOM_TO_SHOW_ROADS && (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 1000,
+          backgroundColor: 'rgba(45, 80, 22, 0.9)',
+          color: 'white',
+          padding: '20px 30px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          textAlign: 'center',
+          pointerEvents: 'none',
+        }}>
+          <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
+            🔍 地図を拡大してください
+          </div>
+          <div style={{ fontSize: '14px', opacity: 0.9 }}>
+            ズームレベル {MIN_ZOOM_TO_SHOW_ROADS} 以上で林道が表示されます
+          </div>
+        </div>
+      )}
+
       <MapContainer
         center={center}
         zoom={zoom}
@@ -196,6 +245,7 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
       {onMapClick && <MapClickHandler onClick={onMapClick} />}
       <FlyToUserLocation userLocation={userLocation || null} />
       <MapController searchLocation={searchLocation} />
+      <ZoomMonitor onZoomChange={handleZoomChange} />
 
       {selectedPosition && !routeMode && (
         <Marker position={selectedPosition} icon={createCustomIcon('#3b82f6')}>
@@ -227,7 +277,7 @@ export default function Map({ roads, center = [35.6762, 139.6503], zoom = 10, on
         </>
       )}
 
-      {roads.map((road) => {
+      {currentZoom >= MIN_ZOOM_TO_SHOW_ROADS && roads.map((road) => {
         const position: [number, number] = [road.latitude, road.longitude];
         const hasRoute = road.route && road.route.length > 1;
 
