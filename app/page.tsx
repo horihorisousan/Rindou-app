@@ -183,17 +183,18 @@ function MapPageContent() {
     }}>
       {error && (
         <div style={{
-          position: 'absolute',
-          top: '68px',
+          position: 'fixed',
+          top: '130px',
           left: '50%',
           transform: 'translateX(-50%)',
-          zIndex: 1000,
+          zIndex: 1001,
           padding: '1rem',
           backgroundColor: '#fee',
           border: '1px solid #fcc',
           borderRadius: '4px',
           color: '#c33',
           maxWidth: '500px',
+          width: '90%',
           boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
         }}>
           {error}

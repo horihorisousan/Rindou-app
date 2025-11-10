@@ -146,8 +146,8 @@ export default function SearchBar({ onLocationSelect }: SearchBarProps) {
     <div
       ref={searchRef}
       style={{
-        position: 'absolute',
-        top: '68px',
+        position: 'fixed',
+        top: '70px',
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 1000,
