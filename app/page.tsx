@@ -176,7 +176,7 @@ function MapPageContent() {
   return (
     <div style={{
       width: '100%',
-      height: 'calc(100vh - 64px)', // ヘッダーの高さを引いた全画面
+      height: '100%',
       position: 'relative',
       display: 'flex',
       flexDirection: 'column'
@@ -184,7 +184,7 @@ function MapPageContent() {
       {error && (
         <div style={{
           position: 'absolute',
-          top: '1rem',
+          top: '74px',
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 1000,

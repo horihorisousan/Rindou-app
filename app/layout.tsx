@@ -112,7 +112,8 @@ export default function RootLayout({
               flex: 1,
               overflow: 'auto',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              paddingTop: '64px'
             }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 {children}

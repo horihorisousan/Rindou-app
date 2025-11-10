@@ -30,7 +30,10 @@ export default function Header() {
       paddingLeft: 'max(1rem, env(safe-area-inset-left))',
       paddingRight: 'max(1rem, env(safe-area-inset-right))',
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      position: 'relative',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
       zIndex: 2000
     }}>
       <nav style={{
