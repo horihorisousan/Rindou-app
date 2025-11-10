@@ -71,6 +71,12 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
         <meta name="google-site-verification" content="sW3APj4yZTv4lvC5C3_p1NeJltoJXSMrtpFsRjLe71E" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#2d5016" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="林道マップ" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
         {process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID && (
           <script
             async

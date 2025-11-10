@@ -1,0 +1,39 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with forest green theme -->
+  <rect width="512" height="512" fill="#2d5016" rx="64"/>
+
+  <!-- Lighter green for the road path -->
+  <path d="M 150 100 Q 200 150, 250 200 T 350 350 L 400 450"
+        stroke="#7fb069"
+        stroke-width="45"
+        stroke-linecap="round"
+        fill="none"/>
+
+  <!-- White road markings -->
+  <path d="M 150 100 Q 200 150, 250 200 T 350 350 L 400 450"
+        stroke="#ffffff"
+        stroke-width="8"
+        stroke-linecap="round"
+        stroke-dasharray="25,20"
+        fill="none"/>
+
+  <!-- Map pin marker at the start -->
+  <g transform="translate(150, 80)">
+    <circle cx="0" cy="0" r="25" fill="#ffffff"/>
+    <circle cx="0" cy="0" r="15" fill="#2d5016"/>
+  </g>
+
+  <!-- Map pin marker at the end -->
+  <g transform="translate(400, 450)">
+    <circle cx="0" cy="0" r="25" fill="#ffffff"/>
+    <circle cx="0" cy="0" r="15" fill="#2d5016"/>
+  </g>
+
+  <!-- Japanese text "林道" (forest road) -->
+  <text x="256" y="470"
+        font-family="Arial, sans-serif"
+        font-size="48"
+        font-weight="bold"
+        fill="#ffffff"
+        text-anchor="middle">林道</text>
+</svg>
