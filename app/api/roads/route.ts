@@ -10,25 +10,56 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const boundsParam = searchParams.get('bounds');
 
-    // まず林道データを取得
-    let query = supabase
-      .from('roads')
-      .select('*')
-      .order('created_at', { ascending: false });
+    // まず林道データを取得（複数回クエリで全件取得）
+    let allRoadsData: any[] = [];
+    const batchSize = 1000; // Supabase PostgRESTの制限
+    let offset = 0;
+    let hasMore = true;
 
-    // 地理的範囲が指定されている場合はフィルタリング
-    if (boundsParam) {
-      const [south, west, north, east] = boundsParam.split(',').map(Number);
-      if (!isNaN(south) && !isNaN(west) && !isNaN(north) && !isNaN(east)) {
-        query = query
-          .gte('latitude', south)
-          .lte('latitude', north)
-          .gte('longitude', west)
-          .lte('longitude', east);
+    while (hasMore) {
+      let query = supabase
+        .from('roads')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + batchSize - 1);
+
+      // 地理的範囲が指定されている場合はフィルタリング
+      if (boundsParam) {
+        const [south, west, north, east] = boundsParam.split(',').map(Number);
+        if (!isNaN(south) && !isNaN(west) && !isNaN(north) && !isNaN(east)) {
+          query = query
+            .gte('latitude', south)
+            .lte('latitude', north)
+            .gte('longitude', west)
+            .lte('longitude', east);
+        }
+      }
+
+      const { data: batchData, error: batchError } = await query;
+
+      if (batchError) {
+        console.error('Supabase error fetching roads batch:', batchError);
+        return NextResponse.json(
+          { error: 'Failed to fetch roads', details: batchError.message },
+          { status: 500 }
+        );
+      }
+
+      if (batchData && batchData.length > 0) {
+        allRoadsData = allRoadsData.concat(batchData);
+        offset += batchSize;
+
+        // 取得件数がbatchSizeより少ない場合は最後のバッチ
+        if (batchData.length < batchSize) {
+          hasMore = false;
+        }
+      } else {
+        hasMore = false;
       }
     }
 
-    const { data: roadsData, error: roadsError } = await query.limit(1000);
+    const roadsData = allRoadsData;
+    const roadsError = null;
 
     if (roadsError) {
       console.error('Supabase error fetching roads:', roadsError);
