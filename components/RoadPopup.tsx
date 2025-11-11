@@ -18,6 +18,7 @@ export default function RoadPopup({ road, userId, userHasLiked = false }: RoadPo
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchComments();
@@ -79,6 +80,47 @@ export default function RoadPopup({ road, userId, userHasLiked = false }: RoadPo
       setError('コメントの取得に失敗しました');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/?roadId=${road.id}`;
+    const shareTitle = `${road.name} - Rindou`;
+    const shareText = road.description || `${road.name}の情報を共有します`;
+
+    // Web Share APIが利用可能か確認
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        setShareMessage('共有しました');
+        setTimeout(() => setShareMessage(null), 3000);
+      } catch (err) {
+        // ユーザーがキャンセルした場合など
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Share failed:', err);
+          // フォールバック: URLをコピー
+          fallbackCopyUrl(shareUrl);
+        }
+      }
+    } else {
+      // Web Share APIが使えない場合はURLをコピー
+      fallbackCopyUrl(shareUrl);
+    }
+  };
+
+  const fallbackCopyUrl = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareMessage('URLをコピーしました');
+      setTimeout(() => setShareMessage(null), 3000);
+    } catch (err) {
+      console.error('Copy failed:', err);
+      setShareMessage('共有に失敗しました');
+      setTimeout(() => setShareMessage(null), 3000);
     }
   };
 
@@ -161,7 +203,13 @@ export default function RoadPopup({ road, userId, userHasLiked = false }: RoadPo
       )}
       <div style={{ margin: '8px 0 0 0' }}>
         <p style={{ margin: '0', fontSize: '12px', color: '#999' }}>
-          投稿日: {new Date(road.created_at).toLocaleDateString('ja-JP')}
+          投稿日時: {new Date(road.created_at).toLocaleString('ja-JP', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
         </p>
         {road.username && (
           <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#999' }}>
@@ -173,56 +221,68 @@ export default function RoadPopup({ road, userId, userHasLiked = false }: RoadPo
       <div style={{
         marginTop: '12px',
         paddingTop: '12px',
-        borderTop: '1px solid #eee',
-        display: 'flex',
-        gap: '8px'
+        borderTop: '1px solid #eee'
       }}>
-        <a
-          href={`https://www.google.com/maps?q=${road.latitude},${road.longitude}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            flex: 1,
-            padding: '8px 12px',
-            fontSize: '13px',
-            fontWeight: '500',
-            color: 'white',
-            backgroundColor: '#4285f4',
-            border: 'none',
+        {shareMessage && (
+          <div style={{
+            marginBottom: '8px',
+            padding: '8px',
+            backgroundColor: '#d4edda',
+            border: '1px solid #c3e6cb',
             borderRadius: '4px',
-            textDecoration: 'none',
-            textAlign: 'center',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#357ae8'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4285f4'}
-        >
-          Google Maps
-        </a>
-        <a
-          href={`https://maps.apple.com/?ll=${road.latitude},${road.longitude}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            flex: 1,
-            padding: '8px 12px',
-            fontSize: '13px',
-            fontWeight: '500',
-            color: 'white',
-            backgroundColor: '#000000',
-            border: 'none',
-            borderRadius: '4px',
-            textDecoration: 'none',
-            textAlign: 'center',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#333333'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000000'}
-        >
-          Apple Maps
-        </a>
+            fontSize: '12px',
+            color: '#155724',
+            textAlign: 'center'
+          }}>
+            {shareMessage}
+          </div>
+        )}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <a
+            href={`https://www.google.com/maps?q=${road.latitude},${road.longitude}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              fontSize: '13px',
+              fontWeight: '500',
+              color: 'white',
+              backgroundColor: '#4285f4',
+              border: 'none',
+              borderRadius: '4px',
+              textDecoration: 'none',
+              textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s',
+              boxSizing: 'border-box'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#357ae8'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4285f4'}
+          >
+            Google Maps
+          </a>
+          <button
+            onClick={handleShare}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              fontSize: '13px',
+              fontWeight: '500',
+              color: 'white',
+              backgroundColor: '#2d5016',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s',
+              boxSizing: 'border-box'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3d6920'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2d5016'}
+          >
+            共有
+          </button>
+        </div>
       </div>
 
       {/* いいねボタンセクション */}
