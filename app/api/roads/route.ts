@@ -59,15 +59,6 @@ export async function GET(request: NextRequest) {
     }
 
     const roadsData = allRoadsData;
-    const roadsError = null;
-
-    if (roadsError) {
-      console.error('Supabase error fetching roads:', roadsError);
-      return NextResponse.json(
-        { error: 'Failed to fetch roads', details: roadsError.message },
-        { status: 500 }
-      );
-    }
 
     // データがない場合は空配列を返す
     if (!roadsData || roadsData.length === 0) {
