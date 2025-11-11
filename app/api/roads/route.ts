@@ -4,13 +4,31 @@ import type { CreateRoadInput } from '@/types/road';
 import { isInJapan } from '@/lib/japan-bounds';
 
 // GET /api/roads - 全ての林道情報を取得（投稿者のユーザー名も含む）
-export async function GET() {
+// クエリパラメータ: bounds (optional) - 地理的範囲 "south,west,north,east"
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const boundsParam = searchParams.get('bounds');
+
     // まず林道データを取得
-    const { data: roadsData, error: roadsError } = await supabase
+    let query = supabase
       .from('roads')
       .select('*')
       .order('created_at', { ascending: false });
+
+    // 地理的範囲が指定されている場合はフィルタリング
+    if (boundsParam) {
+      const [south, west, north, east] = boundsParam.split(',').map(Number);
+      if (!isNaN(south) && !isNaN(west) && !isNaN(north) && !isNaN(east)) {
+        query = query
+          .gte('latitude', south)
+          .lte('latitude', north)
+          .gte('longitude', west)
+          .lte('longitude', east);
+      }
+    }
+
+    const { data: roadsData, error: roadsError } = await query.limit(1000);
 
     if (roadsError) {
       console.error('Supabase error fetching roads:', roadsError);

@@ -133,6 +133,8 @@ function MapPageContent() {
   const fetchRoads = async () => {
     try {
       setLoading(true);
+      // TODO: マップの可視範囲に基づいた動的取得に移行予定
+      // 現在は最新1000件を取得（Supabase PostgRESTの制限）
       const response = await fetch('/api/roads');
 
       if (!response.ok) {
